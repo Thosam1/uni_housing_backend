@@ -24,6 +24,12 @@ app.use(express.json());
 // checking the access token
 app.use(deserializeUser);
 
+// to make the API public
+const cors = require('cors');
+app.use(cors({
+  origin: '*'
+}));
+
 app.use(router);
 
 // creating a port so client can connect -> port is in config/default.ts

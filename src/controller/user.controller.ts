@@ -1,3 +1,4 @@
+import { logger } from "@typegoose/typegoose/lib/logSettings";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
 import {
@@ -21,9 +22,9 @@ export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput>,
   res: Response
 ) {
-
+  logger.log("beginning");
   const body = req.body;
-
+  logger.log("after");
   try {
     const user = await createUser(body); // do not check if already exists, in our model we had for email unique: true
 

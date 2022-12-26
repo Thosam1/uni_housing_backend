@@ -23,7 +23,7 @@ const router = express.Router();
 
 // create user + sends verification code
 router.post(
-  "/api/users",
+  "/api/users/register",
   validateResource(createUserSchema),
   createUserHandler
 );

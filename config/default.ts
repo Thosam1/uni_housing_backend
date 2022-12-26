@@ -1,6 +1,6 @@
 export default {
   port: 3000,
-  dbUri: "mongodb://localhost:27017/user-api-tutorial", // todo /uni_housing_backend
+  dbUri: process.env.DATABASE_URL, //user-api-tutorial", // todo /uni_housing_backend
   logLevel: "info",
   accessTokenPrivateKey: "",
   refreshTokenPrivateKey: "",
