@@ -5,8 +5,12 @@ export default {
   accessTokenPrivateKey: "",
   refreshTokenPrivateKey: "",
   smtp: {
-    user: "kfdxpkwygc3u24yx@ethereal.email",
-    pass: "efpmh52hKWBjjb4bDp",
+    // development
+    // user: "kfdxpkwygc3u24yx@ethereal.email",
+    // pass: "efpmh52hKWBjjb4bDp",
+    user: process.env.OWNER_EMAIL,
+    pass: process.env.OWNER_EMAIL_PASSWORD,
+
     host: "smtp.ethereal.email",
     port: 587,
     secure: false,

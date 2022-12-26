@@ -15,8 +15,6 @@ import {
 import log from "../utils/logger";
 import sendEmail from "../utils/mailer";
 
-const SOURCE_EMAIL = "test@example.com";
-
 // function to create a new user
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput>,
@@ -30,10 +28,11 @@ export async function createUserHandler(
 
     // after creating the user, we want to send an email with a verification code
     await sendEmail({
+      from: process.env.OWNER_EMAIL, //todo change with our own mail address
       to: user.email, 
-      from: SOURCE_EMAIL, //todo change with our own mail address
       subject: "Verify your email",
       text: `verification code: ${user.verificationCode}. Id: ${user._id}`,
+      // html:
     });
 
     return res.send("User successfully created");
