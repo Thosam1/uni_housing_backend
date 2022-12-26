@@ -12,20 +12,25 @@ import {
   findUserById,
 } from "../service/user.service";
 import log from "../utils/logger";
-import { sendEmail } from "../utils/mailer";
+import sendEmail from "../utils/mailer";
 
+const SOURCE_EMAIL = "test@example.com";
+
+// function to create a new user
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput>,
   res: Response
 ) {
+
   const body = req.body;
 
   try {
-    const user = await createUser(body);
+    const user = await createUser(body); // do not check if already exists, in our model we had for email unique: true
 
+    // after creating the user, we want to send an email with a verification code
     await sendEmail({
-      to: user.email,
-      from: "test@example.com",
+      to: user.email, 
+      from: SOURCE_EMAIL, //todo change with our own mail address
       subject: "Verify your email",
       text: `verification code: ${user.verificationCode}. Id: ${user._id}`,
     });
@@ -75,6 +80,8 @@ export async function forgotPasswordHandler(
   req: Request<{}, {}, ForgotPasswordInput>,
   res: Response
 ) {
+
+  // we don't want people to spam and see whether someone is registered (security)
   const message =
     "If a user with that email is registered you will receive a password reset email";
 
@@ -99,7 +106,7 @@ export async function forgotPasswordHandler(
 
   await sendEmail({
     to: user.email,
-    from: "test@example.com",
+    from: SOURCE_EMAIL,
     subject: "Reset your password",
     text: `Password reset code: ${passwordResetCode}. Id ${user._id}`,
   });
@@ -129,13 +136,14 @@ export async function resetPasswordHandler(
 
   user.passwordResetCode = null;
 
-  user.password = password;
+  user.password = password; // no need to hash, we have a presaved hook that will do the job in user.model.ts
 
   await user.save();
 
-  return res.send("Successfully updated password");
+  return res.send("Password successfully updated");
 }
 
 export async function getCurrentUserHandler(req: Request, res: Response) {
+  // because deserializeUser middleware used in app.ts
   return res.send(res.locals.user);
 }

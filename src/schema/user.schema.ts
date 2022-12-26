@@ -1,4 +1,6 @@
-import { object, string, TypeOf } from "zod";
+/* server side validation */
+
+import { object, string, TypeOf } from "zod"; // for validation
 
 export const createUserSchema = object({
   body: object({
@@ -56,10 +58,12 @@ export const resetPasswordSchema = object({
   }),
 });
 
+
+// With zod, we can export the Schemas as interfaces !!!
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
 
 export type VerifyUserInput = TypeOf<typeof verifyUserSchema>["params"];
 
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 
-export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;
+export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>; // has params and body !

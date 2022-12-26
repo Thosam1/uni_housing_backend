@@ -1,8 +1,9 @@
-import logger from "pino";
-import dayjs from "dayjs";
+/* Logger for our application */
+import logger from "pino"; // logger library
+import dayjs from "dayjs"; // to format date and time
 import config from "config";
 
-const level = config.get<string>("logLevel");
+const level = config.get<string>("logLevel"); // config/default.ts
 
 const log = logger({
   transport: {
@@ -10,7 +11,7 @@ const log = logger({
   },
   level,
   base: {
-    pid: false,
+    pid: false, // process id
   },
   timestamp: () => `,"time":"${dayjs().format()}"`,
 });

@@ -2,10 +2,10 @@ import { getModelForClass, prop, Ref } from "@typegoose/typegoose";
 import { User } from "./user.model";
 
 export class Session {
-  @prop({ ref: () => User })
-  user: Ref<User>;
+  @prop({ ref: () => User }) // mongoose
+  user: Ref<User>; // typescript -> reference
 
-  @prop({ default: true })
+  @prop({ default: true }) // when logout, set to false and cannot create refresh token anymore
   valid: boolean;
 }
 

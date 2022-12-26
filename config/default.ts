@@ -1,14 +1,14 @@
 export default {
   port: 3000,
-  dbUri: "mongodb://localhost:27017/user-api-tutorial",
+  dbUri: "mongodb://localhost:27017/user-api-tutorial", // todo /uni_housing_backend
   logLevel: "info",
   accessTokenPrivateKey: "",
   refreshTokenPrivateKey: "",
   smtp: {
-    user: "icqskc5mxzf3bwct@ethereal.email",
-    pass: "mVSU79SbF3WmvGqy4V",
+    user: "kfdxpkwygc3u24yx@ethereal.email",
+    pass: "efpmh52hKWBjjb4bDp",
     host: "smtp.ethereal.email",
     port: 587,
     secure: false,
-  },
+  }, // todo, in production we want secure to be set to true and use different credentials
 };

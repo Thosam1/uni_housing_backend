@@ -32,6 +32,8 @@ export async function signRefreshToken({ userId }: { userId: string }) {
 }
 
 export function signAccessToken(user: DocumentType<User>) {
+  
+  // so we do not send privateFields
   const payload = omit(user.toJSON(), privateFields);
 
   const accessToken = signJwt(payload, "accessTokenPrivateKey", {

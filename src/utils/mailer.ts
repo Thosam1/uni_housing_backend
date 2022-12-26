@@ -22,6 +22,8 @@ const transporter = nodemailer.createTransport({
   auth: { user: smtp.user, pass: smtp.pass },
 });
 
+
+// function that sends an email
 async function sendEmail(payload: SendMailOptions) {
   transporter.sendMail(payload, (err, info) => {
     if (err) {

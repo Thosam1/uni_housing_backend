@@ -11,4 +11,5 @@ export const createSessionSchema = object({
   }),
 });
 
+// With zod, we can export the Schemas as interfaces !!!
 export type CreateSessionInput = TypeOf<typeof createSessionSchema>["body"];

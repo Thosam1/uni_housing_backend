@@ -11,6 +11,8 @@ import {
 import { findUserByEmail, findUserById } from "../service/user.service";
 import { verifyJwt } from "../utils/jwt";
 
+// for google, facebook, the logic should be here if implemented
+
 export async function createSessionHandler(
   req: Request<{}, {}, CreateSessionInput>,
   res: Response
@@ -48,6 +50,7 @@ export async function createSessionHandler(
   });
 }
 
+// when accessToken is expired
 export async function refreshAccessTokenHandler(req: Request, res: Response) {
   const refreshToken = get(req, "headers.x-refresh");
 
