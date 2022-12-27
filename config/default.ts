@@ -5,14 +5,14 @@ export default {
   accessTokenPrivateKey: "",
   refreshTokenPrivateKey: "",
   smtp: {
-    // development
-    // user: "kfdxpkwygc3u24yx@ethereal.email",
-    // pass: "efpmh52hKWBjjb4bDp",
-    user: process.env.OWNER_EMAIL,
-    pass: process.env.OWNER_EMAIL_PASSWORD,
+    // development - test mode
+    user: "kfdxpkwygc3u24yx@ethereal.email",
+    pass: "efpmh52hKWBjjb4bDp",
+    // user: process.env.OWNER_EMAIL,
+    // pass: process.env.OWNER_EMAIL_PASSWORD,
 
-    host: "smtp.ethereal.email",
+    host: "smtp.ethereal.email", // test mode
     port: 587,
-    secure: false,
+    secure: false, // fase in dev mode
   }, // todo, in production we want secure to be set to true and use different credentials
 };

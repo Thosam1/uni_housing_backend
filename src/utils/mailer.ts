@@ -31,6 +31,7 @@ async function sendEmail(payload: SendMailOptions) {
       return;
     }
 
+    // dev mode
     log.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
   });
 }

@@ -2,6 +2,10 @@ import { logger } from "@typegoose/typegoose/lib/logSettings";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
 import {
+  ChangeBioInput,
+  ChangeFirstNameInput,
+  ChangeLastNameInput,
+  ChangeStatusInput,
   CreateUserInput,
   ForgotPasswordInput,
   ResetPasswordInput,
@@ -106,7 +110,7 @@ export async function forgotPasswordHandler(
 
   await sendEmail({
     to: user.email,
-    from: SOURCE_EMAIL,
+    from: process.env.OWNER_EMAIL,
     subject: "Reset your password",
     text: `Password reset code: ${passwordResetCode}. Id ${user._id}`,
   });
@@ -143,7 +147,96 @@ export async function resetPasswordHandler(
   return res.send("Password successfully updated");
 }
 
+// "/me"
 export async function getCurrentUserHandler(req: Request, res: Response) {
   // because deserializeUser middleware used in app.ts
   return res.send(res.locals.user);
+}
+
+
+// settings
+export async function changeFirstNameHandler(
+  req: Request<{}, {}, ChangeFirstNameInput>,
+  res: Response
+) {
+  const { id, newFirstName } = req.body;
+  const user = await findUserById(id);
+
+  if(!user) {
+    return res.status(400).send("Could not change first name");
+  }
+
+  // todo security measure, find a way to also check that the access token corresponds to the user id, otherwise, someone might be able to change the data of other users !!!
+  if (!user.verified) {
+    return res.status(400).send("User is not verified");
+  }
+
+  // check, create a new service that checks the id with the access token
+
+  user.firstName = newFirstName;
+  await user.save();
+  return res.send("First name successfully updated");
+}
+
+export async function changeLastNameHandler(
+  req: Request<{}, {}, ChangeLastNameInput>,
+  res: Response
+) {
+
+  const { id, newLastName } = req.body;
+  const user = await findUserById(id);
+  if(!user) {
+    return res.status(400).send("Could not change last name");
+  }
+  if (!user.verified) {
+    return res.status(400).send("User is not verified");
+  }
+
+  // check, create a new service that checks the id with the access token
+
+  user.lastName = newLastName;
+  await user.save();
+  return res.send("Last name successfully updated");
+}
+
+export async function changeStatusHandler(
+  req: Request<{}, {}, ChangeStatusInput>,
+  res: Response
+) {
+
+  const { id, newStatus } = req.body;
+  const user = await findUserById(id);
+  if(!user) {
+    return res.status(400).send("Could not change status");
+  }
+  if (!user.verified) {
+    return res.status(400).send("User is not verified");
+  }
+
+  // check, create a new service that checks the id with the access token
+
+  user.status = newStatus;
+  await user.save();
+  return res.send("Status successfully updated");
+
+}
+
+export async function changeBioHandler(
+  req: Request<{}, {}, ChangeBioInput>,
+  res: Response
+) {
+  const { id, newBio } = req.body;
+  const user = await findUserById(id);
+  if(!user) {
+    return res.status(400).send("Could not change bio");
+  }
+  if (!user.verified) {
+    return res.status(400).send("User is not verified");
+  }
+
+  // check, create a new service that checks the id with the access token
+
+  user.bio = newBio;
+  await user.save();
+  return res.send("Bio successfully updated");
 }
