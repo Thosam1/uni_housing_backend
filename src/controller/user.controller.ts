@@ -24,16 +24,13 @@ export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput>,
   res: Response
 ) {
-  logger.log("beginning");
   const body = req.body;
-  logger.log("after");
   try {
     const user = await createUser(body); // do not check if already exists, in our model we had for email unique: true
-
     // after creating the user, we want to send an email with a verification code
     await sendEmail({
-      from: process.env.OWNER_EMAIL, //todo change with our own mail address
       to: user.email, 
+      from: "test@example.com", //todo change with our own mail address
       subject: "Verify your email",
       text: `verification code: ${user.verificationCode}. Id: ${user._id}`,
       // html:
@@ -60,12 +57,12 @@ export async function verifyUserHandler(
   const user = await findUserById(id);
 
   if (!user) {
-    return res.send("Could not verify user");
+    return res.status(500).send("Could not verify user");
   }
 
   // check to see if they are already verified
   if (user.verified) {
-    return res.send("User is already verified");
+    return res.status(200).send("User is already verified");
   }
 
   // check to see if the verificationCode matches
@@ -73,11 +70,10 @@ export async function verifyUserHandler(
     user.verified = true;
 
     await user.save();
-
     return res.send("User successfully verified");
   }
 
-  return res.send("Could not verify user");
+  return res.status(500).send("Could not verify user");
 }
 
 export async function forgotPasswordHandler(
@@ -94,7 +90,6 @@ export async function forgotPasswordHandler(
   const user = await findUserByEmail(email);
 
   if (!user) {
-    log.debug(`User with email ${email} does not exists`);
     return res.send(message);
   }
 
@@ -110,12 +105,10 @@ export async function forgotPasswordHandler(
 
   await sendEmail({
     to: user.email,
-    from: process.env.OWNER_EMAIL,
+    from: "test@example.com", // process.env.OWNER_EMAIL,
     subject: "Reset your password",
     text: `Password reset code: ${passwordResetCode}. Id ${user._id}`,
   });
-
-  log.debug(`Password reset email sent to ${email}`);
 
   return res.send(message);
 }
@@ -214,7 +207,6 @@ export async function changeStatusHandler(
   }
 
   // check, create a new service that checks the id with the access token
-
   user.status = newStatus;
   await user.save();
   return res.send("Status successfully updated");
