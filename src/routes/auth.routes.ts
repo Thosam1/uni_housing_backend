@@ -10,7 +10,7 @@ const router = express.Router();
 
 // creating a session
 router.post(
-  "/api/sessions",
+  "/api/sessions/login",
   validateResource(createSessionSchema),
   createSessionHandler
 );

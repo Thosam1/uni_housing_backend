@@ -10,6 +10,7 @@ import {
 } from "../service/auth.service";
 import { findUserByEmail, findUserById } from "../service/user.service";
 import { verifyJwt } from "../utils/jwt";
+import log from "../utils/logger";
 
 // for google, facebook, the logic should be here if implemented
 
@@ -42,15 +43,19 @@ export async function createSessionHandler(
   // sign a refresh token
   const refreshToken = await signRefreshToken({ userId: user._id });
 
-  // send the tokens
+  log.info(`accessToken: ${accessToken} \n\n refreshToken: ${refreshToken}`);
 
-  return res.send({
+
+  // send the tokens
+  // res.cookie("jwt", refreshToken);
+  // res.json({ accessToken });
+
+  return res.status(200).cookie("refreshToken", refreshToken).send({
     accessToken,
-    refreshToken,
   });
 }
 
-// when accessToken is expired
+// when accessToken is expired -> frontend, we go to back to the login page (if code = 401)
 export async function refreshAccessTokenHandler(req: Request, res: Response) {
   const refreshToken = get(req, "headers.x-refresh");
 

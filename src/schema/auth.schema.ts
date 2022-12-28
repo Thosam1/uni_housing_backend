@@ -1,4 +1,4 @@
-import { object, string, TypeOf } from "zod";
+import { boolean, object, string, TypeOf } from "zod";
 
 export const createSessionSchema = object({
   body: object({
@@ -8,6 +8,7 @@ export const createSessionSchema = object({
     password: string({
       required_error: "Password is required",
     }).min(6, "Invalid email or password"),
+    rememberMe: boolean()
   }),
 });
 

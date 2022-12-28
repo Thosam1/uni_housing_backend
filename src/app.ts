@@ -14,6 +14,7 @@ import log from "./utils/logger";
 import router from "./routes";
 
 import deserializeUser from "./middleware/deserializeUser";
+import { CORS_ORIGIN } from "../constants";
 
 // initializing
 const app = express();
@@ -26,17 +27,23 @@ app.use(deserializeUser);
 
 // to make the API public
 const cors = require('cors');
-app.use(cors({
-  origin: '*'
-}));
+app.use(cors(
+  {
+  origin: '*', // CORS_ORIGIN, // '*' // 'http://localhost:19006/' // 
+  // credentials: true,
+}
+)
+);
 
 app.use(router);
 
 // creating a port so client can connect -> port is in config/default.ts
 const port = config.get("port");
+const hostname = "172.23.208.1"
 
 app.listen(port, () => {
   log.info(`App started at http://localhost:${port}`);
+  log.info(`App started at http://${hostname}:${port}`);
 
   // connection to our database
   connectToDb();

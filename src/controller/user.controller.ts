@@ -143,6 +143,7 @@ export async function resetPasswordHandler(
 // "/me"
 export async function getCurrentUserHandler(req: Request, res: Response) {
   // because deserializeUser middleware used in app.ts
+  log.info("in the getCurrentUser function")
   return res.send(res.locals.user);
 }
 

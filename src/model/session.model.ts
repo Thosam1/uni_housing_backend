@@ -1,6 +1,6 @@
 import { getModelForClass, prop, Ref } from "@typegoose/typegoose";
 import { User } from "./user.model";
-
+ 
 export class Session {
   @prop({ ref: () => User }) // mongoose
   user: Ref<User>; // typescript -> reference

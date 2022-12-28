@@ -24,20 +24,20 @@ export async function signRefreshToken({ userId }: { userId: string }) {
     },
     "refreshTokenPrivateKey",
     {
-      expiresIn: "1y",
+      expiresIn: "1y", // 1y - 1 year
     }
   );
 
   return refreshToken;
 }
 
+// create an access token for a giver user
 export function signAccessToken(user: DocumentType<User>) {
-  
   // so we do not send privateFields
   const payload = omit(user.toJSON(), privateFields);
 
   const accessToken = signJwt(payload, "accessTokenPrivateKey", {
-    expiresIn: "15m",
+    expiresIn: "45m", // 15m - 15 minutes
   });
 
   return accessToken;

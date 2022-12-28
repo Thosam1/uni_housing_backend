@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyJwt } from "../utils/jwt";
+import log from "../utils/logger";
 
 /* Middleware that : get the access token from the header -> we want to do this at each request !*/
 const deserializeUser = async (
@@ -13,16 +14,22 @@ const deserializeUser = async (
     ""
   );
 
+  log.info(`entering deserializeUser : \naccess token received is: ${ accessToken }`);
+
   if (!accessToken) {
     return next();
   }
 
+  log.info("We got an access token !!!")
+
   const decoded = verifyJwt(accessToken, "accessTokenPublicKey");
 
+  log.info(`we are decoding the token !`)
   if (decoded) {
+    log.info(`we decoded the access token ! ${decoded}`)
     res.locals.user = decoded;
   }
-
+  log.info("exiting the deserializeUser middleware\n")
   return next();
 };
 
