@@ -1,10 +1,7 @@
 import express from "express";
 import {
-  changeBioHandler,
-  changeFirstNameHandler,
-  changeLastNameHandler,
-  changeStatusHandler,
   createUserHandler,
+  editProfileHandler,
   forgotPasswordHandler,
   getCurrentUserHandler,
   resetPasswordHandler,
@@ -13,11 +10,8 @@ import {
 import requireUser from "../middleware/requireUser";
 import validateResource from "../middleware/validateResource";
 import {
-  changeBioSchema,
-  changeFirstNameSchema,
-  changeLastNameSchema,
-  changeStatusSchema,
   createUserSchema,
+  editProfileSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   verifyUserSchema,
@@ -62,15 +56,9 @@ router.get("/api/users/me", requireUser, getCurrentUserHandler);
 
 // --- settings ---
 router.post(
-  "/api/users/me/change-first-name",
-  validateResource(changeFirstNameSchema), requireUser,
-  changeFirstNameHandler
-);
-
-router.post(
-  "/api/users/me/change-last-name",
-  validateResource(changeLastNameSchema), requireUser,
-  changeLastNameHandler
+  "/api/users/me/edit-profile",
+  validateResource(editProfileSchema), requireUser,
+  editProfileHandler
 );
 
 // router.post(
@@ -78,18 +66,6 @@ router.post(
 //   validateResource(changeAvatarSchema),
 //   changeAvatarHandler
 // );
-
-router.post(
-  "/api/users/me/change-status",
-  validateResource(changeStatusSchema), requireUser,
-  changeStatusHandler
-);
-
-router.post(
-  "/api/users/me/change-bio",
-  validateResource(changeBioSchema), requireUser,
-  changeBioHandler
-);
 
 
 // router.post(

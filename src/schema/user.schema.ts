@@ -65,41 +65,21 @@ export const resetPasswordSchema = object({
 });
 
 // settings ---
-export const changeFirstNameSchema = object({
+export const editProfileSchema = object({
   body: object({
     id: string(),
     newFirstName: string({
       required_error: "First name is required",
     }).min(MIN_NAME_LENGTH, `First name is too shord - should be min ${MIN_NAME_LENGTH} chars`),
-  }),
-});
-
-export const changeLastNameSchema = object({
-  body: object({
-    id: string(),
     newLastName: string({
       required_error: "Last name is required",
     }).min(MIN_NAME_LENGTH, `Last name is too shord - should be min ${MIN_NAME_LENGTH} chars`),
+    newStatus: string(),
+    newBio: string(),
   }),
 });
 
-export const changeStatusSchema = object({
-  body: object({
-    id: string(),
-    newStatus: string({
-      required_error: "New status is required",
-    }).min(MIN_STATUS_LENGTH, `Status is too shord - should be min ${MIN_STATUS_LENGTH} chars`),
-  }),
-});
 
-export const changeBioSchema = object({
-  body: object({
-    id: string(),
-    newBio: string({
-      required_error: "New bio is required",
-    }).min(MIN_BIO_LENGTH, `Bio is too shord - should be min ${MIN_BIO_LENGTH} chars`),
-  }),
-});
 
 
 // With zod, we can export the Schemas as interfaces !!!
@@ -111,12 +91,7 @@ export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>; // has params and body !
 
-export type ChangeFirstNameInput = TypeOf<typeof changeFirstNameSchema>["body"];
+export type EditProfileInput = TypeOf<typeof editProfileSchema>["body"];
 
-export type ChangeLastNameInput = TypeOf<typeof changeLastNameSchema>["body"];
-
-export type ChangeStatusInput = TypeOf<typeof changeStatusSchema>["body"];
-
-export type ChangeBioInput = TypeOf<typeof changeBioSchema>["body"];
 
 
