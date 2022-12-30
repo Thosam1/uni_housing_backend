@@ -18,6 +18,8 @@ export async function createSessionHandler(
   req: Request<{}, {}, CreateSessionInput>,
   res: Response
 ) {
+
+  log.info("HERE")
   const message = "Invalid email or password";
   const { email, password } = req.body;
 
@@ -27,16 +29,19 @@ export async function createSessionHandler(
     return res.send(message);
   }
 
+  log.info("HERE2")
+
   if (!user.verified) {
     return res.send("Please verify your email");
   }
 
   const isValid = await user.validatePassword(password);
 
+  log.info("HERE3")
   if (!isValid) {
     return res.send(message);
   }
-
+  log.info("HERE4")
   // sign a access token
   const accessToken = signAccessToken(user);
 
@@ -50,8 +55,24 @@ export async function createSessionHandler(
   // res.cookie("jwt", refreshToken);
   // res.json({ accessToken });
 
-  return res.status(200).cookie("refreshToken", refreshToken).send({
-    accessToken,
+  res.cookie("refreshToken", refreshToken, {
+    maxAge: 3.154e10, // 1 year
+    httpOnly: true,
+    domain: process.env.COOKIE_DOMAIN || 'localhost',
+    path: '/',
+    sameSite: 'strict',
+    secure: false, // todo in production we must put to true, only over a secure connection
+  }).cookie("accessToken", accessToken, {
+    maxAge: 3.154e10, // 1 year
+    httpOnly: true,
+    domain: process.env.COOKIE_DOMAIN || 'localhost',
+    path: '/',
+    sameSite: 'strict',
+    secure: false, // todo in production we must put to true, only over a secure connection
+  })
+
+  return res.status(200).send({
+    accessToken, // can be accessed from client with res.data.accessToken
   });
 }
 

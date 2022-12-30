@@ -3,7 +3,7 @@ import config from "config";
 import log from "./logger";
 
 // allows to connect to database : dbUri is in config/default.ts
-async function connectToDb() {
+export async function connectToDb() {
   const dbUri = config.get<string>("dbUri"); // type unkown so -> generic
 
   try {
@@ -18,4 +18,10 @@ async function connectToDb() {
   }
 }
 
-export default connectToDb;
+export async function disconnectFromDatabase() {
+  await mongoose.connection.close();
+
+  log.info("Disconnect from database");
+
+  return;
+}

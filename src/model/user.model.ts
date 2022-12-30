@@ -61,10 +61,10 @@ export class User {
   @prop({ required: true })
   lastName: string;
 
-  @prop({ required: false })
+  @prop({ required: false, default: '' })
   status: string;
 
-  @prop({ required: false })
+  @prop({ required: false, default: '' })
   bio: string;
 
   @prop({ required: true })

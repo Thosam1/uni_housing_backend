@@ -1,5 +1,5 @@
 export default {
-  port: 3000,
+  port: process.env.PORT || 3000,
   dbUri: process.env.DATABASE_URL, //user-api-tutorial", // todo /uni_housing_backend
   logLevel: "info",
   accessTokenPrivateKey: "",

@@ -9,14 +9,14 @@ const deserializeUser = async (
   next: NextFunction
 ) => {
 
-  const accessToken = (req.headers.authorization || "").replace(
+  const accessToken = (req.headers.authorization || req.cookies.accessToken || "").replace(
     /^Bearer\s/,
     ""
   );
 
   log.info(`entering deserializeUser : \naccess token received is: ${ accessToken }`);
 
-  if (!accessToken) {
+  if (!accessToken) { 
     return next();
   }
 
