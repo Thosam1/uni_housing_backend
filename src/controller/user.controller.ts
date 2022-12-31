@@ -1,6 +1,9 @@
 import { logger } from "@typegoose/typegoose/lib/logSettings";
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import { omit } from "lodash";
 import { nanoid } from "nanoid";
+import { privateFields } from "../model/user.model";
 import {
   CreateUserInput,
   EditProfileInput,
@@ -36,10 +39,10 @@ export async function createUserHandler(
     return res.send("User successfully created");
   } catch (e: any) {
     if (e.code === 11000) {
-      return res.status(409).send("Account already exists");
+      return res.status(StatusCodes.CONFLICT).send("Account already exists");
     }
 
-    return res.status(500).send(e);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
   }
 }
 
@@ -54,12 +57,12 @@ export async function verifyUserHandler(
   const user = await findUserById(id);
 
   if (!user) {
-    return res.status(500).send("Could not verify user");
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Could not verify user");
   }
 
   // check to see if they are already verified
   if (user.verified) {
-    return res.status(200).send("User is already verified");
+    return res.status(StatusCodes.OK).send("User is already verified");
   }
 
   // check to see if the verificationCode matches
@@ -70,7 +73,7 @@ export async function verifyUserHandler(
     return res.send("User successfully verified");
   }
 
-  return res.status(500).send("Could not verify user");
+  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Could not verify user");
 }
 
 export async function forgotPasswordHandler(
@@ -125,7 +128,7 @@ export async function resetPasswordHandler(
     !user.passwordResetCode ||
     user.passwordResetCode !== passwordResetCode
   ) {
-    return res.status(400).send("Could not reset user password");
+    return res.status(StatusCodes.BAD_REQUEST).send("Could not reset user password");
   }
 
   user.passwordResetCode = null;
@@ -151,24 +154,34 @@ export async function editProfileHandler(
   res: Response
 ) {
   const { id, newFirstName, newLastName, newStatus, newBio } = req.body;
-  const user = await findUserById(id);
 
+  // check first if id of the person to change corresponds to the access token received
+  if(res.locals.user._id !== id) {
+    return res.status(StatusCodes.UNAUTHORIZED).send("Hacking is punishable by law !")
+  }
+
+  const user = await findUserById(id);
   if(!user) {
-    return res.status(400).send("Could not edit profile");
+    return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
   }
 
   // todo security measure, find a way to also check that the access token corresponds to the user id, otherwise, someone might be able to change the data of other users !!!
   if (!user.verified) {
-    return res.status(400).send("User is not verified");
+    return res.status(StatusCodes.BAD_REQUEST).send("User is not verified");
   }
 
   // check, create a new service that checks the id with the access token
-
   user.firstName = newFirstName;
   user.lastName = newLastName;
   user.status = newStatus;
   user.bio = newBio;
 
   await user.save();
-  return res.status(200).send("Profile successfully updated");
+
+  const updatedUser = await findUserById(id);
+  if(!updatedUser) {
+    return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
+  }
+  const payload = omit(updatedUser.toJSON(), privateFields);
+  return res.status(StatusCodes.OK).send(payload);
 }
