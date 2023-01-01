@@ -6,10 +6,12 @@ import {
   pre,
   DocumentType,
   index,
+  Ref,
 } from "@typegoose/typegoose";
 import { nanoid } from "nanoid";
 import argon2 from "argon2";
 import log from "../utils/logger";
+import { Post } from "./post.model";
 
 // stuff we do not want to send to the client
 export const privateFields = [
@@ -18,6 +20,7 @@ export const privateFields = [
   "verificationCode",
   "passwordResetCode",
   "verified",
+  "savedPosts",
 ];
 
 // presaved hook, to hash the password before putting it in the database
@@ -66,6 +69,13 @@ export class User {
 
   @prop({ required: false, default: '' })
   bio: string;
+
+  @prop({ required: false })
+  ownedPosts: [Ref<Post>];
+
+  @prop({ required: false })
+  savedPosts: [Ref<Post>];
+
 
   @prop({ required: true })
   password: string;

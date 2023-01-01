@@ -155,6 +155,8 @@ export async function editProfileHandler(
 ) {
   const { id, newFirstName, newLastName, newStatus, newBio } = req.body;
 
+  log.info("HERE1")
+
   // check first if id of the person to change corresponds to the access token received
   if(res.locals.user._id !== id) {
     return res.status(StatusCodes.UNAUTHORIZED).send("Hacking is punishable by law !")

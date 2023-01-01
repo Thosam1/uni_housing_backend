@@ -19,7 +19,7 @@ export async function createSessionHandler(
   req: Request<{}, {}, CreateSessionInput>,
   res: Response
 ) {
-  log.info("HERE");
+  
   const message = "Invalid email or password";
   const { email, password } = req.body;
 
@@ -29,19 +29,16 @@ export async function createSessionHandler(
     return res.send(message);
   }
 
-  log.info("HERE2");
-
   if (!user.verified) {
     return res.send("Please verify your email");
   }
 
   const isValid = await user.validatePassword(password);
 
-  log.info("HERE3");
   if (!isValid) {
     return res.send(message);
   }
-  log.info("HERE4");
+
   // sign a access token
   const accessToken = signAccessToken(user);
 
