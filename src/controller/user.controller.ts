@@ -147,6 +147,16 @@ export async function getCurrentUserHandler(req: Request, res: Response) {
   return res.send(res.locals.user);
 }
 
+// todo - get the user owned posts, and user saved posts / https://github.com/ed-roh/mern-social-media/blob/master/server/controllers/users.js
+// const friends = await Promise.all(
+//   user.friends.map((id) => User.findById(id))
+// );
+// const formattedFriends = friends.map(
+//   ({ _id, firstName, lastName, occupation, location, picturePath }) => {
+//     return { _id, firstName, lastName, occupation, location, picturePath };
+//   }
+// );
+
 
 // settings
 export async function editProfileHandler(
@@ -184,6 +194,8 @@ export async function editProfileHandler(
   if(!updatedUser) {
     return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
   }
+
+  // sending back the user
   const payload = omit(updatedUser.toJSON(), privateFields);
   return res.status(StatusCodes.OK).send(payload);
 }

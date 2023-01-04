@@ -55,18 +55,7 @@ export const deletePostSchema = object({
   }),
 });
 
-export const savePostSchema = object({
-  body: object({
-    user_id: string({
-      required_error: "User id is required",
-    }),
-    post_id: string({
-      required_error: "Post id is required",
-    }),
-  }),
-});
-
-export const unsavePostSchema = object({
+export const saveUnsavePostSchema = object({
   body: object({
     user_id: string({
       required_error: "User id is required",
@@ -93,6 +82,5 @@ export type deletePostInput = TypeOf<typeof deletePostSchema>["body"];
 
 export type getPostInput = TypeOf<typeof getPostSchema>["params"];
 
-export type savePostInput = TypeOf<typeof savePostSchema>["body"];
+export type saveUnsavePostInput = TypeOf<typeof saveUnsavePostSchema>["body"];
 
-export type unsavePostInput = TypeOf<typeof unsavePostSchema>["body"];

@@ -4,20 +4,22 @@ import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
 import { Types } from "mongoose";
 import { Post } from "../model/post.model";
-import { privateFields } from "../model/user.model";
+import { privateFields, User } from "../model/user.model";
 
 import {
   createPostInput,
   deletePostInput,
   editPostInput,
   getPostInput,
-  savePostInput,
-  unsavePostInput,
+  saveUnsavePostInput,
 } from "../schema/post.schema";
 
-import { createPost, deletePostById, findPostById } from "../service/post.service";
 import {
-  findUserByEmail,
+  createPost,
+  deletePostById,
+  findPostById,
+} from "../service/post.service";
+import {
   findUserById,
   findUserByRef,
 } from "../service/user.service";
@@ -103,54 +105,70 @@ export async function editPostHandler(
 }
 
 export async function deletePostHandler(
-    req: Request<{}, {}, deletePostInput>,
-    res: Response
-  ) {
-    const body = req.body;
-    try {
-      const user = await findUserById(body.user_id);
-      if (!user) {
-        return res
-          .status(StatusCodes.INTERNAL_SERVER_ERROR)
-          .send("This user doesn't exist");
-      }
-  
-      // we check access token corresponds to the user
-      if (res.locals.user._id !== body.user_id) {
-        return res
-          .status(StatusCodes.UNAUTHORIZED)
-          .send("Hacking is punishable by law !");
-      }
-  
-      // currently, we allow duplicates, no need to really check if same description etc, ...
-      const post = await findPostById(body.post_id);
-      if (!post) {
-        return res
-          .status(StatusCodes.INTERNAL_SERVER_ERROR)
-          .send("This post doesn't exist");
-      }
-  
-      // we must remove from current user owned posts
-      user.ownedPosts = user.ownedPosts.filter((elt) => elt !== post) as [
-        Ref<Post, Types.ObjectId | undefined>
-      ];
-      await user.save();
-
-      // we must delete post from saved posts for all users
-      // appararently this can be done via a middleware https://stackoverflow.com/questions/11904159/automatically-remove-referencing-objects-on-deletion-in-mongodb
-
-      // we must delete the post from the database
-      await deletePostById(body.post_id);
-
-      return res.send("Post successfully updated !");
-    } catch (e: any) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
+  req: Request<{}, {}, deletePostInput>,
+  res: Response
+) {
+  const body = req.body;
+  try {
+    const user = await findUserById(body.user_id);
+    if (!user) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send("This user doesn't exist");
     }
+
+    // we check access token corresponds to the user
+    if (res.locals.user._id !== body.user_id) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .send("Hacking is punishable by law !");
+    }
+
+    // currently, we allow duplicates, no need to really check if same description etc, ...
+    const post = await findPostById(body.post_id);
+    if (!post) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send("This post doesn't exist");
+    }
+
+    // we must remove from current user owned posts
+    user.ownedPosts = user.ownedPosts.filter((elt) => elt !== post) as [
+      Ref<Post, Types.ObjectId | undefined>
+    ];
+    await user.save();
+
+    // [deprecated]
+    // we must delete post from saved posts for all users
+    // appararently this can be done via a middleware https://stackoverflow.com/questions/11904159/automatically-remove-referencing-objects-on-deletion-in-mongodb
+    // in the "pre" hook in post.model.ts
+
+    // removing references to this post from all users that saved this post
+    const usersThatSavedThisPost = await Promise.all(
+      post.savedBy.map((id) => findUserByRef(id))
+    );
+    usersThatSavedThisPost.map(async (user) => {
+      if (user) {
+        // check if user was found
+        user.savedPosts = user.savedPosts.filter(
+          (postID) => postID !== post._id
+        ) as [Ref<Post, Types.ObjectId | undefined>];
+        await user.save();
+      }
+    });
+
+    // we must delete the post from the database
+    await deletePostById(body.post_id);
+
+    return res.send("Post successfully updated !");
+  } catch (e: any) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
   }
+}
 
 // to save a post for a given user
-export async function savePostHandler(
-  req: Request<{}, {}, savePostInput>,
+export async function saveUnsavePostHandler(
+  req: Request<{}, {}, saveUnsavePostInput>,
   res: Response
 ) {
   const body = req.body;
@@ -180,53 +198,32 @@ export async function savePostHandler(
       user.savedPosts.push(post._id);
       await user.save();
 
+      // we also add the reference to the user to the postf so the delete can be efficient when deleting a post
+      if (!post.savedBy.includes(user)) {
+        post.savedBy.push(user);
+        await post.save();
+      }
+
       // idea: we can add some email verification to add a post if we see a lot of traffic in the future
       return res.status(StatusCodes.OK).send("Post successfully saved !");
     } else {
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .send("This post has already been saved");
+      // we remove the reference of this post to the user
+      user.savedPosts = user.savedPosts.filter((elt) => elt !== post) as [
+        Ref<Post, Types.ObjectId | undefined>
+      ];
+      await user.save();
+
+      // we also remove the reference to the user to the post so the delete can be efficient when deleting a post
+      if (post.savedBy.includes(user)) {
+        post.savedBy = post.savedBy.filter((id) => id !== user) as [
+          Ref<User, Types.ObjectId | undefined>
+        ];
+        await post.save();
+      }
+
+      // idea: we can add some email verification to add a post if we see a lot of traffic in the future
+      return res.status(StatusCodes.OK).send("Post successfully unsaved !");
     }
-  } catch (e: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
-  }
-}
-
-// to unsave a post for a given user
-export async function unsavePostHandler(
-  req: Request<{}, {}, unsavePostInput>,
-  res: Response
-) {
-  const body = req.body;
-  // we check access token corresponds to the user
-  if (res.locals.user._id !== body.user_id) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .send("Hacking is punishable by law !");
-  }
-
-  const user = await findUserById(body.user_id);
-  if (!user) {
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send("This user doesn't exist");
-  }
-
-  const post = await findPostById(body.post_id);
-  if (!post) {
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send("This post doesn't exist");
-  }
-  try {
-    // after that, we also need to add the reference of this post to the user
-    user.savedPosts = user.savedPosts.filter((elt) => elt !== post) as [
-      Ref<Post, Types.ObjectId | undefined>
-    ];
-    await user.save();
-
-    // idea: we can add some email verification to add a post if we see a lot of traffic in the future
-    return res.status(StatusCodes.OK).send("Post successfully unsaved !");
   } catch (e: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
   }

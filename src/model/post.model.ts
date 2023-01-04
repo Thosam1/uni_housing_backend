@@ -1,6 +1,13 @@
-import { getModelForClass, prop, Ref } from "@typegoose/typegoose";
-import { User } from "./user.model";
- 
+import { getModelForClass, pre, prop, Ref } from "@typegoose/typegoose";
+import { model } from "mongoose";
+import UserModel, { User } from "./user.model";
+
+// stuff we do not want to send to the client
+export const privateFields = [
+    "__v",
+    "savedBy",
+  ];
+
 export class Post {
     @prop({ ref: () => User }) // owner
     user: Ref<User>; // typescript -> reference -> id
@@ -16,9 +23,13 @@ export class Post {
 
     @prop({ required: true })
     price: string;
-
+    
     // @prop({ required: true })
     // photos: string;
+
+    @prop({ required: false })
+    savedBy: [Ref<User>];
+
 }
 
 // exported using @typegoose

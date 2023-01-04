@@ -8,8 +8,7 @@ import {
   editPostHandler,
   getAllPostsHandler,
   getPostHandler,
-  savePostHandler,
-  unsavePostHandler,
+  saveUnsavePostHandler,
 } from "../controller/post.controller";
 import requireUser from "../middleware/requireUser";
 import validateResource from "../middleware/validateResource";
@@ -18,8 +17,7 @@ import {
   createPostSchema,
   editPostSchema,
   getPostSchema,
-  savePostSchema,
-  unsavePostSchema,
+  saveUnsavePostSchema,
 } from "../schema/post.schema";
 
 const router = express.Router();
@@ -48,21 +46,15 @@ router.delete(
   editPostHandler
 );
 
-// save a Post
+// save or unsave a Post
 router.post(
-  "/api/post/save",
-  validateResource(savePostSchema),
+  "/api/post/save-unsave",
+  validateResource(saveUnsavePostSchema),
   requireUser,
-  savePostHandler
+  saveUnsavePostHandler
 );
 
-// unsave a Post
-router.post(
-  "/api/post/unsave",
-  validateResource(unsavePostSchema),
-  requireUser,
-  unsavePostHandler
-);
+
 
 // getting a Post
 router.get(

@@ -1,4 +1,5 @@
 import { Ref } from "@typegoose/typegoose";
+import { Post } from "../model/post.model";
 import UserModel, { User } from "../model/user.model";
 
 export async function createUser(input: Partial<User>) {
@@ -18,11 +19,3 @@ export async function findUserByEmail(email: string) {
   return UserModel.findOne({ email });
 }
 
-// must check before if postID and userID both are valid and corresponds
-export async function addPostToUserOwnedPosts(userID: string, postID: string) {
- 
-}
-
-export async function addPostToUserSavedPosts(userID: string, postID: string) {
-
-}

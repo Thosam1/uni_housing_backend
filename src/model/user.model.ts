@@ -31,7 +31,6 @@ export const privateFields = [
 
   // todo add also salt in the future
   const hash = await argon2.hash(this.password);
-
   this.password = hash;
 
   return;
