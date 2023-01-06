@@ -79,6 +79,18 @@ export const editProfileSchema = object({
   }),
 });
 
+export const getOwnedPostsSchema = object({
+  body: object({
+    id: string() // user id
+  }),
+});
+
+export const getSavedPostsSchema = object({
+  body: object({
+    id: string() // user id
+  }),
+});
+
 
 
 
@@ -93,5 +105,8 @@ export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>; // has para
 
 export type EditProfileInput = TypeOf<typeof editProfileSchema>["body"];
 
+export type getOwnedPostsInput = TypeOf<typeof getOwnedPostsSchema>["body"];
+
+export type getSavedPostsInput = TypeOf<typeof getSavedPostsSchema>["body"];
 
 

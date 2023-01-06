@@ -14,7 +14,7 @@ import log from "../utils/logger";
 import { Post } from "./post.model";
 
 // stuff we do not want to send to the client
-export const privateFields = [
+export const userPrivateFields = [
   "password",
   "__v",
   "verificationCode",

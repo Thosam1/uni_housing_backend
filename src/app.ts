@@ -24,8 +24,6 @@ import { CORS_ORIGIN } from "./constants";
 // initializing
 const app = express();
 
-const path = require("path");
-
 // to parse cookies
 app.use(cookieParser());
 

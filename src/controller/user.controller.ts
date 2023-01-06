@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
 import { nanoid } from "nanoid";
-import { privateFields } from "../model/user.model";
+import { userPrivateFields } from "../model/user.model";
 import {
   CreateUserInput,
   EditProfileInput,
   ForgotPasswordInput,
+  getOwnedPostsInput,
   ResetPasswordInput,
   VerifyUserInput,
 } from "../schema/user.schema";
@@ -18,6 +19,8 @@ import {
 import log from "../utils/logger";
 import sendEmail from "../utils/mailer";
 import multer from "multer";
+import { findPostById } from "../service/post.service";
+import { postPrivateFields } from "../model/post.model";
 
 // function to create a new user
 export async function createUserHandler(
@@ -224,7 +227,7 @@ export async function editProfileHandler(
   }
 
   // sending back the user
-  const payload = omit(updatedUser.toJSON(), privateFields);
+  const payload = omit(updatedUser.toJSON(), userPrivateFields);
   return res.status(StatusCodes.OK).send(payload);
 }
 
@@ -290,6 +293,64 @@ export async function editAvatarHandler(req: Request, res: Response) {
   // }
 
   // // sending back the user
-  // const payload = omit(updatedUser.toJSON(), privateFields);
+  // const payload = omit(updatedUser.toJSON(), userPrivateFields);
   // return res.status(StatusCodes.OK).send(payload);
+}
+
+
+export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInput>, res: Response) {
+
+  const { id } = req.body;
+
+  log.info("WE ARE HEEEEEEEEEEEEEEERE")
+
+  // check first if id of the person to change corresponds to the access token received
+  if (res.locals.user._id !== id) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .send("Hacking is punishable by law !");
+  }
+
+  const user = await findUserById(id);
+  if (!user) {
+    return res.status(StatusCodes.BAD_REQUEST).send("Could not get owned posts");
+  }
+
+  const posts = await Promise.all(
+    user.ownedPosts.map((id) => findPostById(id))
+  );
+
+  log.info(posts)
+
+  const omitted = posts.map((post) => omit(post?.toJSON(), postPrivateFields));
+
+  log.info(omitted);
+
+  return res.status(StatusCodes.OK).send(omitted);
+}
+
+export async function getSavedPostsHandler(req: Request<{}, {}, getOwnedPostsInput>, res: Response) {
+
+  const { id } = req.body;
+
+  // check first if id of the person to change corresponds to the access token received
+  if (res.locals.user._id !== id) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .send("Hacking is punishable by law !");
+  }
+
+  const user = await findUserById(id);
+  if (!user) {
+    return res.status(StatusCodes.BAD_REQUEST).send("Could not get saved posts");
+  }
+
+  const posts = await Promise.all(
+    user.savedPosts.map((id) => findPostById(id))
+  );
+
+  const omitted = posts.map((post) => omit(post?.toJSON(), postPrivateFields));
+
+  return res.status(StatusCodes.OK).send(omitted);
+  
 }

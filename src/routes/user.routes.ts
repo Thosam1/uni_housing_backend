@@ -6,6 +6,8 @@ import {
   editProfileHandler,
   forgotPasswordHandler,
   getCurrentUserHandler,
+  getOwnedPostsHandler,
+  getSavedPostsHandler,
   resetPasswordHandler,
   verifyUserHandler,
 } from "../controller/user.controller";
@@ -15,6 +17,8 @@ import {
   createUserSchema,
   editProfileSchema,
   forgotPasswordSchema,
+  getOwnedPostsSchema,
+  getSavedPostsSchema,
   resetPasswordSchema,
   verifyUserSchema,
 } from "../schema/user.schema";
@@ -69,6 +73,18 @@ router.post(
   requireUser,
   // upload.single("image"), // to add the image to the database
   editAvatarHandler
+);
+
+router.post(
+  "/api/users/me/owned-posts",
+  validateResource(getOwnedPostsSchema),
+  requireUser, getOwnedPostsHandler
+);
+
+router.post(
+  "/api/users/me/saved-posts",
+  validateResource(getSavedPostsSchema),
+  requireUser, getSavedPostsHandler
 );
 
 // router.post(

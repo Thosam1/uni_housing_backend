@@ -3,7 +3,7 @@ import { model } from "mongoose";
 import UserModel, { User } from "./user.model";
 
 // stuff we do not want to send to the client
-export const privateFields = ["__v", "savedBy"];
+export const postPrivateFields = ["__v", "savedBy"];
 
 type Location = {
   city: string;

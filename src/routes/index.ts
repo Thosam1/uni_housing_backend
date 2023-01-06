@@ -1,6 +1,7 @@
 import express from "express";
 import user from "./user.routes";
 import auth from "./auth.routes";
+import post from "./post.route";
 
 const router = express.Router();
 
@@ -8,7 +9,8 @@ const router = express.Router();
 router.get("/healthcheck", (_, res) => res.status(200).send("The health check is okay !"));
 
 // all our routes
-router.use(user);
 router.use(auth);
+router.use(user);
+router.use(post);
 
 export default router;

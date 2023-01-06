@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
 import { Types } from "mongoose";
 import { Post } from "../model/post.model";
-import { privateFields, User } from "../model/user.model";
+import { userPrivateFields, User } from "../model/user.model";
 
 import {
   createPostInput,
@@ -23,6 +23,7 @@ import {
   findUserById,
   findUserByRef,
 } from "../service/user.service";
+import log from "../utils/logger";
 
 // for google, facebook, the logic should be here if implemented
 
@@ -30,7 +31,9 @@ export async function createPostHandler(
   req: Request<{}, {}, createPostInput>,
   res: Response
 ) {
+  log.info("IN HERE")
   const body = req.body;
+  
   try {
     const user = await findUserById(body.user);
     if (!user) {
@@ -253,7 +256,7 @@ export async function getPostHandler(
       .send("This user doesn't exist");
   }
 
-  const publicProfile = omit(user.toJSON(), privateFields);
+  const publicProfile = omit(user.toJSON(), userPrivateFields);
 
   return res.status(StatusCodes.OK).send({ ownerProfile: publicProfile, post });
 }

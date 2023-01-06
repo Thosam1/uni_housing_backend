@@ -5,6 +5,7 @@ import {
 } from "../controller/auth.controller";
 import {
   createPostHandler,
+  deletePostHandler,
   editPostHandler,
   getAllPostsHandler,
   getPostHandler,
@@ -15,6 +16,7 @@ import validateResource from "../middleware/validateResource";
 import { createSessionSchema } from "../schema/auth.schema";
 import {
   createPostSchema,
+  deletePostSchema,
   editPostSchema,
   getPostSchema,
   saveUnsavePostSchema,
@@ -41,9 +43,9 @@ router.post(
 // delete a Post
 router.delete(
   "/api/post/delete",
-  validateResource(editPostSchema),
+  validateResource(deletePostSchema),
   requireUser,
-  editPostHandler
+  deletePostHandler
 );
 
 // save or unsave a Post
@@ -53,8 +55,6 @@ router.post(
   requireUser,
   saveUnsavePostHandler
 );
-
-
 
 // getting a Post
 router.get(

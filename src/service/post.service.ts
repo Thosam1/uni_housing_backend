@@ -1,3 +1,4 @@
+import { Ref } from "@typegoose/typegoose";
 import PostModel, { Post } from "../model/post.model";
 
 export async function createPost(input: {
@@ -13,7 +14,7 @@ export async function createPost(input: {
   return PostModel.create(input);
 }
 
-export async function findPostById(id: string) {
+export async function findPostById(id: string | Ref<Post>) {
     return PostModel.findById(id);
 }
 
