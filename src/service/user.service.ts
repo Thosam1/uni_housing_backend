@@ -1,5 +1,6 @@
 import { Ref } from "@typegoose/typegoose";
 import { Post } from "../model/post.model";
+
 import UserModel, { User } from "../model/user.model";
 
 export async function createUser(input: Partial<User>) {
@@ -18,4 +19,5 @@ export async function findUserByRef(ref: Ref<User>) {
 export async function findUserByEmail(email: string) {
   return UserModel.findOne({ email });
 }
+
 

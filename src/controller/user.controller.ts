@@ -1,4 +1,3 @@
-import { logger } from "@typegoose/typegoose/lib/logSettings";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
@@ -18,6 +17,7 @@ import {
 } from "../service/user.service";
 import log from "../utils/logger";
 import sendEmail from "../utils/mailer";
+import multer from "multer";
 
 // function to create a new user
 export async function createUserHandler(
@@ -29,7 +29,7 @@ export async function createUserHandler(
     const user = await createUser(body); // do not check if already exists, in our model we had for email unique: true
     // after creating the user, we want to send an email with a verification code
     await sendEmail({
-      to: user.email, 
+      to: user.email,
       from: "test@example.com", //todo change with our own mail address
       subject: "Verify your email",
       text: `verification code: ${user.verificationCode}. Id: ${user._id}`,
@@ -57,7 +57,9 @@ export async function verifyUserHandler(
   const user = await findUserById(id);
 
   if (!user) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Could not verify user");
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Could not verify user");
   }
 
   // check to see if they are already verified
@@ -73,14 +75,15 @@ export async function verifyUserHandler(
     return res.send("User successfully verified");
   }
 
-  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Could not verify user");
+  return res
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
+    .send("Could not verify user");
 }
 
 export async function forgotPasswordHandler(
   req: Request<{}, {}, ForgotPasswordInput>,
   res: Response
 ) {
-
   // we don't want people to spam and see whether someone is registered (security)
   const message =
     "If a user with that email is registered you will receive a password reset email";
@@ -128,7 +131,9 @@ export async function resetPasswordHandler(
     !user.passwordResetCode ||
     user.passwordResetCode !== passwordResetCode
   ) {
-    return res.status(StatusCodes.BAD_REQUEST).send("Could not reset user password");
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send("Could not reset user password");
   }
 
   user.passwordResetCode = null;
@@ -143,7 +148,7 @@ export async function resetPasswordHandler(
 // "/me"
 export async function getCurrentUserHandler(req: Request, res: Response) {
   // because deserializeUser middleware used in app.ts
-  log.info("in the getCurrentUser function")
+  // log.info("in the getCurrentUser function")
   return res.send(res.locals.user);
 }
 
@@ -157,7 +162,6 @@ export async function getCurrentUserHandler(req: Request, res: Response) {
 //   }
 // );
 
-
 // settings
 export async function editProfileHandler(
   req: Request<{}, {}, EditProfileInput>,
@@ -165,15 +169,15 @@ export async function editProfileHandler(
 ) {
   const { id, newFirstName, newLastName, newStatus, newBio } = req.body;
 
-  log.info("HERE1")
-
   // check first if id of the person to change corresponds to the access token received
-  if(res.locals.user._id !== id) {
-    return res.status(StatusCodes.UNAUTHORIZED).send("Hacking is punishable by law !")
+  if (res.locals.user._id !== id) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .send("Hacking is punishable by law !");
   }
 
   const user = await findUserById(id);
-  if(!user) {
+  if (!user) {
     return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
   }
 
@@ -188,14 +192,104 @@ export async function editProfileHandler(
   user.status = newStatus;
   user.bio = newBio;
 
+  //   const storage = multer.diskStorage({
+  //     destination: function (req, file, cb) {
+  //         cb(null, 'uploads/avatars/')
+  //     },
+  //     filename: function (req, file, cb) {
+  //         cb(null, id)
+  //     }
+  // });
+
+  // let upload = multer({ storage: storage })
+
+  //   // avatar :
+  //   if(!!req.file) {
+  //     upload(req, res, function(err) {
+  //       if(err) {
+  //           //stuff when error while file uploading
+  //       } else {
+  //           //file uploaded
+  //       }
+  //     res.json({
+  //       url: `/uploads/avatars/${id}` // hopefully it overwrites
+  //     });
+  //   }
+
   await user.save();
 
   const updatedUser = await findUserById(id);
-  if(!updatedUser) {
+  if (!updatedUser) {
     return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
   }
 
   // sending back the user
   const payload = omit(updatedUser.toJSON(), privateFields);
   return res.status(StatusCodes.OK).send(payload);
+}
+
+export async function editAvatarHandler(req: Request, res: Response) {
+  log.info("\n\n\n\n ---------------------- \n\n\n\n");
+  log.info("EDIT AVATAR HANDLER");
+
+  // to store user avatars
+  const storage = multer.diskStorage({
+    destination: function (request, file, callback) {
+      callback(null, "public");
+    },
+    filename: function (request, file, callback) {
+      var temp_file_arr = file.originalname.split(".");
+
+      var temp_file_name = temp_file_arr[0];
+
+      var temp_file_extension = temp_file_arr[1];
+
+      callback(
+        null,
+        temp_file_name + "-" + Date.now() + "." + temp_file_extension
+      );
+    },
+  });
+  const upload = multer({ storage: storage }).single("image");
+
+  upload(req, res, function (error) {
+    if (error) {
+      return res.status(StatusCodes.BAD_REQUEST).send("Error Uploading File");
+    } else {
+      log.info("uploaded yeeey");
+      return res.status(StatusCodes.OK).send("File is uploaded successfully");
+    }
+  });
+
+  // const userID = res.locals.user._id;
+
+  // const user = await findUserById(userID);
+  // if (!user) {
+  //   return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
+  // }
+
+  // // todo security measure, find a way to also check that the access token corresponds to the user id, otherwise, someone might be able to change the data of other users !!!
+  // if (!user.verified) {
+  //   return res.status(StatusCodes.BAD_REQUEST).send("User is not verified");
+  // }
+
+  // log.info(req);
+
+  // log.info(req.body);
+
+  // const { image } = req.body;
+  // log.info(image);
+
+  // return res.status(StatusCodes.OK).send("OKAY");
+
+  // await user.save();
+
+  // const updatedUser = await findUserById(id);
+  // if(!updatedUser) {
+  //   return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
+  // }
+
+  // // sending back the user
+  // const payload = omit(updatedUser.toJSON(), privateFields);
+  // return res.status(StatusCodes.OK).send(payload);
 }

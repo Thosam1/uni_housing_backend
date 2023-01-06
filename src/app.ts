@@ -3,6 +3,7 @@ require("dotenv").config();
 
 import express from "express";
 import config from "config";
+import multer from "multer";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -23,6 +24,8 @@ import { CORS_ORIGIN } from "./constants";
 // initializing
 const app = express();
 
+const path = require("path");
+
 // to parse cookies
 app.use(cookieParser());
 
@@ -38,6 +41,7 @@ app.use(
     // credentials: true,
   })
 );
+
 
 // to make the app more secure (eg: hiding headers, ...)
 app.use(helmet());

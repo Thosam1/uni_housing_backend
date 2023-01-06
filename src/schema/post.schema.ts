@@ -9,8 +9,21 @@ export const createPostSchema = object({
     title: string({
       required_error: "Title is required",
     }),
-    location: string({
-      required_error: "Location is required",
+    location: object({
+      city: string({
+        required_error: "City is required",
+      }),
+      country: string({
+        required_error: "Country is required",
+      })
+    }),
+    date: object({
+      start: string({
+        required_error: "Start date is required",
+      }),
+      end: string({
+        required_error: "End date is required",
+      })
     }),
     description: string({
       required_error: "Description confirmation is required",

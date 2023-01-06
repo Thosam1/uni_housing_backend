@@ -64,17 +64,19 @@ export class User {
   lastName: string;
 
   @prop({ required: false, default: '' })
+  avatar: string;
+
+  @prop({ required: false, default: '' })
   status: string;
 
   @prop({ required: false, default: '' })
   bio: string;
 
-  @prop({ required: false })
+  @prop({ required: false, default: [] })
   ownedPosts: [Ref<Post>];
 
-  @prop({ required: false })
+  @prop({ required: false, default: [] })
   savedPosts: [Ref<Post>];
-
 
   @prop({ required: true })
   password: string;

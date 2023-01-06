@@ -1,6 +1,8 @@
 import express from "express";
+import multer from "multer";
 import {
   createUserHandler,
+  editAvatarHandler,
   editProfileHandler,
   forgotPasswordHandler,
   getCurrentUserHandler,
@@ -57,8 +59,16 @@ router.get("/api/users/me", requireUser, getCurrentUserHandler);
 // --- settings ---
 router.post(
   "/api/users/me/edit-profile",
-  validateResource(editProfileSchema), requireUser,
+  validateResource(editProfileSchema),
+  requireUser,
   editProfileHandler
+);
+
+router.post(
+  "/api/users/me/edit-profile/avatar",
+  requireUser,
+  // upload.single("image"), // to add the image to the database
+  editAvatarHandler
 );
 
 // router.post(
@@ -66,7 +76,6 @@ router.post(
 //   validateResource(changeAvatarSchema),
 //   changeAvatarHandler
 // );
-
 
 // router.post(
 //   "/api/users/me/change-password",
@@ -79,6 +88,5 @@ router.post(
 //   validateResource(closeAccountSchema),
 //   closeAccountHandler
 // );
-
 
 export default router;
