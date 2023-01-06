@@ -9,22 +9,21 @@ export const createPostSchema = object({
     title: string({
       required_error: "Title is required",
     }),
-    location: object({
-      city: string({
-        required_error: "City is required",
-      }),
-      country: string({
-        required_error: "Country is required",
-      })
+
+    city: string({
+      required_error: "City is required",
     }),
-    date: object({
-      start: string({
-        required_error: "Start date is required",
-      }),
-      end: string({
-        required_error: "End date is required",
-      })
+    country: string({
+      required_error: "Country is required",
     }),
+
+    startDate: string({
+      required_error: "Start date is required",
+    }),
+    endDate: string({
+      required_error: "End date is required",
+    }),
+
     description: string({
       required_error: "Description confirmation is required",
     }),
@@ -45,8 +44,17 @@ export const editPostSchema = object({
     title: string({
       required_error: "Title is required",
     }),
-    location: string({
-      required_error: "Location is required",
+    city: string({
+      required_error: "City is required",
+    }),
+    country: string({
+      required_error: "Country is required",
+    }),
+    startDate: string({
+      required_error: "Start date is required",
+    }),
+    endDate: string({
+      required_error: "End date is required",
     }),
     description: string({
       required_error: "Description confirmation is required",
@@ -96,4 +104,3 @@ export type deletePostInput = TypeOf<typeof deletePostSchema>["body"];
 export type getPostInput = TypeOf<typeof getPostSchema>["params"];
 
 export type saveUnsavePostInput = TypeOf<typeof saveUnsavePostSchema>["body"];
-

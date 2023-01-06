@@ -92,7 +92,10 @@ export async function editPostHandler(
     }
 
     post.title = body.title;
-    post.location = body.location;
+    post.city = body.city;
+    post.country = body.country;
+    post.startDate = body.startDate;
+    post.endDate = body.endDate;
     post.description = body.description;
     post.price = body.price;
 

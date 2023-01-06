@@ -3,7 +3,10 @@ import PostModel, { Post } from "../model/post.model";
 export async function createPost(input: {
   user: string;
   title: string;
-  location: string;
+  city: string;
+  country: string;
+  startDate: string;
+  endDate: string;
   description: string;
   price: string;
 }) {

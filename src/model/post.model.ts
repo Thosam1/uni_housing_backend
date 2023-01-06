@@ -5,6 +5,16 @@ import UserModel, { User } from "./user.model";
 // stuff we do not want to send to the client
 export const privateFields = ["__v", "savedBy"];
 
+type Location = {
+  city: string;
+  country: string;
+}
+
+type Date = {
+  start: string;
+  end: string;
+}
+
 export class Post {
   @prop({ ref: () => User }) // owner
   user: Ref<User>; // typescript -> reference -> id
@@ -13,7 +23,16 @@ export class Post {
   title: string;
 
   @prop({ required: true })
-  location: string;
+  city: string;
+  
+  @prop({ required: true })
+  country: string;
+
+  @prop({ required: true })
+  startDate: string;
+
+  @prop({ required: true })
+  endDate: string;
 
   @prop({ required: true })
   description: string;
