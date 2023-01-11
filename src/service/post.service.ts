@@ -23,6 +23,10 @@ export async function deletePostById(id: string) {
     return PostModel.deleteOne({ _id: id });
 }
 
+export async function getAllPosts() {
+  return PostModel.find();
+}
+
 // export async function omitAndAppendUserInfo(post: Post) {
 //   return PostModel.deleteOne({ _id: id });
 // }

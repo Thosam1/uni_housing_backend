@@ -8,6 +8,7 @@ import {
   deletePostHandler,
   editPostHandler,
   getAllPostsHandler,
+  getHomePostsHandler,
   getPostHandler,
   saveUnsavePostHandler,
 } from "../controller/post.controller";
@@ -63,6 +64,9 @@ router.get(
   requireUser,
   getPostHandler
 );
+
+// getting all posts
+router.get("/api/post/home", requireUser, getHomePostsHandler);
 
 // getting all posts
 router.get("/api/post/get/all", requireUser, getAllPostsHandler);

@@ -18,11 +18,9 @@ import {
   createPost,
   deletePostById,
   findPostById,
+  getAllPosts,
 } from "../service/post.service";
-import {
-  findUserById,
-  findUserByRef,
-} from "../service/user.service";
+import { findUserById, findUserByRef } from "../service/user.service";
 import log from "../utils/logger";
 
 // for google, facebook, the logic should be here if implemented
@@ -31,9 +29,9 @@ export async function createPostHandler(
   req: Request<{}, {}, createPostInput>,
   res: Response
 ) {
-  log.info("IN HERE")
+  log.info("IN HERE");
   const body = req.body;
-  
+
   try {
     const user = await findUserById(body.user);
     if (!user) {
@@ -211,7 +209,9 @@ export async function saveUnsavePostHandler(
       }
 
       // idea: we can add some email verification to add a post if we see a lot of traffic in the future
-      return res.status(StatusCodes.OK).send({ saved: true, message: "Post successfully saved !" });
+      return res
+        .status(StatusCodes.OK)
+        .send({ saved: true, message: "Post successfully saved !" });
     } else {
       // we remove the reference of this post to the user
       user.savedPosts = user.savedPosts.filter((elt) => elt !== post) as [
@@ -228,7 +228,9 @@ export async function saveUnsavePostHandler(
       }
 
       // idea: we can add some email verification to add a post if we see a lot of traffic in the future
-      return res.status(StatusCodes.OK).send({ saved: false, message: "Post successfully unsaved !" });
+      return res
+        .status(StatusCodes.OK)
+        .send({ saved: false, message: "Post successfully unsaved !" });
     }
   } catch (e: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
@@ -256,17 +258,26 @@ export async function getPostHandler(
       .send("This user doesn't exist");
   }
 
-  let newPostJson = JSON.stringify(omit(post?.toJSON(), postPrivateFields))
+  let newPostJson = JSON.stringify(omit(post?.toJSON(), postPrivateFields));
   let newPost = JSON.parse(newPostJson);
-  
+
   newPost["owner_firstName"] = user.firstName;
   newPost["owner_lastName"] = user.lastName;
   newPost["owner_avatar"] = user.avatar;
 
-  const found = post?.savedBy.filter((elt) => elt === user._id).length === 1
+  const found = post?.savedBy.filter((elt) => elt === user._id).length === 1;
   newPost["saved"] = found;
 
   return res.status(StatusCodes.OK).send(newPost);
+}
+
+export async function getHomePostsHandler(req: Request, res: Response) {
+  const allPosts = await getAllPosts();
+  if(!allPosts) {
+    return res.status(StatusCodes.OK).send("All posts sent to you");
+  } else {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("An error has occured");
+  } 
 }
 
 export async function getAllPostsHandler(req: Request, res: Response) {}

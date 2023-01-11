@@ -325,5 +325,4 @@ export async function getSavedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
   const omitted = posts.map((post) => omit(post?.toJSON(), postPrivateFields));
 
   return res.status(StatusCodes.OK).send(omitted);
-  
 }
