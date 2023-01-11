@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
 import { Types } from "mongoose";
-import { Post } from "../model/post.model";
+import { Post, postPrivateFields } from "../model/post.model";
 import { userPrivateFields, User } from "../model/user.model";
 
 import {
@@ -256,9 +256,17 @@ export async function getPostHandler(
       .send("This user doesn't exist");
   }
 
-  const publicProfile = omit(user.toJSON(), userPrivateFields);
+  let newPostJson = JSON.stringify(omit(post?.toJSON(), postPrivateFields))
+  let newPost = JSON.parse(newPostJson);
+  
+  newPost["owner_firstName"] = user.firstName;
+  newPost["owner_lastName"] = user.lastName;
+  newPost["owner_avatar"] = user.avatar;
 
-  return res.status(StatusCodes.OK).send({ ownerProfile: publicProfile, post });
+  const found = post?.savedBy.filter((elt) => elt === user._id).length === 1
+  newPost["saved"] = found;
+
+  return res.status(StatusCodes.OK).send(newPost);
 }
 
 export async function getAllPostsHandler(req: Request, res: Response) {}

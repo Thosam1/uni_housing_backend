@@ -20,7 +20,7 @@ import log from "../utils/logger";
 import sendEmail from "../utils/mailer";
 import multer from "multer";
 import { findPostById } from "../service/post.service";
-import { postPrivateFields } from "../model/post.model";
+import { postPreview, postPrivateFields } from "../model/post.model";
 
 // function to create a new user
 export async function createUserHandler(
@@ -151,7 +151,7 @@ export async function resetPasswordHandler(
 // "/me"
 export async function getCurrentUserHandler(req: Request, res: Response) {
   // because deserializeUser middleware used in app.ts
-  // log.info("in the getCurrentUser function")
+  log.info("in the getCurrentUser function")
   return res.send(res.locals.user);
 }
 
@@ -235,68 +235,47 @@ export async function editAvatarHandler(req: Request, res: Response) {
   log.info("\n\n\n\n ---------------------- \n\n\n\n");
   log.info("EDIT AVATAR HANDLER");
 
-  // to store user avatars
-  const storage = multer.diskStorage({
-    destination: function (request, file, callback) {
-      callback(null, "public");
-    },
-    filename: function (request, file, callback) {
-      var temp_file_arr = file.originalname.split(".");
+  // // to store user avatars
+  // const storage = multer.diskStorage({
+  //   destination: function (request, file, callback) {
+  //     callback(null, "public");
+  //   },
+  //   filename: function (request, file, callback) {
+  //     var temp_file_arr = file.originalname.split(".");
 
-      var temp_file_name = temp_file_arr[0];
+  //     var temp_file_name = temp_file_arr[0];
 
-      var temp_file_extension = temp_file_arr[1];
+  //     var temp_file_extension = temp_file_arr[1];
 
-      callback(
-        null,
-        temp_file_name + "-" + Date.now() + "." + temp_file_extension
-      );
-    },
-  });
-  const upload = multer({ storage: storage }).single("image");
+  //     callback(
+  //       null,
+  //       temp_file_name + "-" + Date.now() + "." + temp_file_extension
+  //     );
+  //   },
+  // });
 
-  upload(req, res, function (error) {
-    if (error) {
-      return res.status(StatusCodes.BAD_REQUEST).send("Error Uploading File");
-    } else {
-      log.info("uploaded yeeey");
-      return res.status(StatusCodes.OK).send("File is uploaded successfully");
-    }
-  });
+  // const upload = multer({ storage: storage }).single("image");
 
-  // const userID = res.locals.user._id;
+  // upload(req, res, function (error) {
+  //   if (error) {
+  //     return res.status(StatusCodes.BAD_REQUEST).send("Error Uploading File");
+  //   } else {
+  //     log.info("uploaded yeeey");
+  //     return res.status(StatusCodes.OK).send("File is uploaded successfully");
+  //   }
+  // });
 
-  // const user = await findUserById(userID);
-  // if (!user) {
-  //   return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
-  // }
+  log.info(req)
+  log.info("req.file is : ")
+  log.info(req.file?.filename);
+  log.info(req.file?.path);
+  log.info(req.file?.size);
 
-  // // todo security measure, find a way to also check that the access token corresponds to the user id, otherwise, someone might be able to change the data of other users !!!
-  // if (!user.verified) {
-  //   return res.status(StatusCodes.BAD_REQUEST).send("User is not verified");
-  // }
+  // req.file.
 
-  // log.info(req);
+  return res.status(StatusCodes.OK).send("Avatar has been updated successfully");
 
-  // log.info(req.body);
-
-  // const { image } = req.body;
-  // log.info(image);
-
-  // return res.status(StatusCodes.OK).send("OKAY");
-
-  // await user.save();
-
-  // const updatedUser = await findUserById(id);
-  // if(!updatedUser) {
-  //   return res.status(StatusCodes.BAD_REQUEST).send("Could not edit profile");
-  // }
-
-  // // sending back the user
-  // const payload = omit(updatedUser.toJSON(), userPrivateFields);
-  // return res.status(StatusCodes.OK).send(payload);
 }
-
 
 export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInput>, res: Response) {
 
@@ -318,7 +297,7 @@ export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
     user.ownedPosts.map((id) => findPostById(id))
   );
 
-  const omitted = posts.map((post) => omit(post?.toJSON(), postPrivateFields));
+  const omitted = posts.map((post) => omit(post?.toJSON(), postPreview));
 
   return res.status(StatusCodes.OK).send(omitted);
 }

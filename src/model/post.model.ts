@@ -5,6 +5,8 @@ import UserModel, { User } from "./user.model";
 // stuff we do not want to send to the client
 export const postPrivateFields = ["__v", "savedBy"];
 
+export const postPreview = ["__v", "savedBy", "description", "shareLink"]
+
 type Location = {
   city: string;
   country: string;
@@ -41,10 +43,13 @@ export class Post {
   price: string;
 
   @prop({ required: false, default: [] })
-  photos: [string];
+  images: string[];
 
   @prop({ required: false, default: [] })
   savedBy: [Ref<User>];
+
+  @prop({ required: true })
+  shareLink: string;
 }
 
 // exported using @typegoose

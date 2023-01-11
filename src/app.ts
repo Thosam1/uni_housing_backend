@@ -33,12 +33,15 @@ app.use(express.json());
 // to make the API public
 app.use(
   cors({
-    origin: ["http://localhost:19006", "http://localhost:19000", "http://172.20.10.2:19000" ], // with '*', the register request from client works
+    origin: CORS_ORIGIN, // ["http://localhost:19006", "http://localhost:19000", "http://172.20.10.2:19000" ], // with '*', the register request from client works
     credentials: true,
     // origin: '*', // CORS_ORIGIN, // '*' // 'http://localhost:19006/' //
     // credentials: true,
   })
 );
+
+// https://expressjs.com/en/starter/static-files.html
+app.use("/static", express.static("public/data/uploads"))
 
 
 // to make the app more secure (eg: hiding headers, ...)

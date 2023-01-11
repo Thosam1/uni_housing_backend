@@ -68,10 +68,13 @@ router.post(
   editProfileHandler
 );
 
+// const upload = multer({ dest: "./public/data/uploads"})
+const storage = multer.memoryStorage();
+const upload = multer({ storage })
 router.post(
   "/api/users/me/edit-profile/avatar",
-  requireUser,
-  // upload.single("image"), // to add the image to the database
+  [requireUser,
+  upload.single('avatar')], // to add the image to the database !!! "avatar" must be also the name in the form 
   editAvatarHandler
 );
 

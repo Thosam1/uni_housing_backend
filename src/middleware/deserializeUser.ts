@@ -14,22 +14,22 @@ const deserializeUser = async (
     ""
   );
 
-  // log.info(`entering deserializeUser : \naccess token received is: ${ accessToken }`);
+  log.info(`entering deserializeUser : \naccess token received is: ${ accessToken }`);
 
   if (!accessToken) { 
     return next();
   }
 
-  // log.info("We got an access token !!!")
+  log.info("We got an access token !!!")
 
   const decoded = verifyJwt(accessToken, "accessTokenPublicKey");
 
-  // log.info(`we are decoding the token !`)
+  log.info(`we are decoding the token !`)
   if (decoded) {
-    // log.info(`we decoded the access token ! ${decoded}`)
+    log.info(`we decoded the access token ! ${decoded}`)
     res.locals.user = decoded;
   }
-  // log.info("exiting the deserializeUser middleware\n")
+  log.info("exiting the deserializeUser middleware\n")
   return next();
 };
 
