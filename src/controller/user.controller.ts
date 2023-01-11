@@ -302,8 +302,6 @@ export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
 
   const { id } = req.body;
 
-  log.info("WE ARE HEEEEEEEEEEEEEEERE")
-
   // check first if id of the person to change corresponds to the access token received
   if (res.locals.user._id !== id) {
     return res
@@ -320,11 +318,7 @@ export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
     user.ownedPosts.map((id) => findPostById(id))
   );
 
-  log.info(posts)
-
   const omitted = posts.map((post) => omit(post?.toJSON(), postPrivateFields));
-
-  log.info(omitted);
 
   return res.status(StatusCodes.OK).send(omitted);
 }

@@ -211,7 +211,7 @@ export async function saveUnsavePostHandler(
       }
 
       // idea: we can add some email verification to add a post if we see a lot of traffic in the future
-      return res.status(StatusCodes.OK).send("Post successfully saved !");
+      return res.status(StatusCodes.OK).send({ saved: true, message: "Post successfully saved !" });
     } else {
       // we remove the reference of this post to the user
       user.savedPosts = user.savedPosts.filter((elt) => elt !== post) as [
@@ -228,7 +228,7 @@ export async function saveUnsavePostHandler(
       }
 
       // idea: we can add some email verification to add a post if we see a lot of traffic in the future
-      return res.status(StatusCodes.OK).send("Post successfully unsaved !");
+      return res.status(StatusCodes.OK).send({ saved: false, message: "Post successfully unsaved !" });
     }
   } catch (e: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
