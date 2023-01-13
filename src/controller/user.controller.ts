@@ -2,12 +2,13 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
 import { nanoid } from "nanoid";
-import { userPrivateFields } from "../model/user.model";
+import { userCrucialFields, userPrivateFields } from "../model/user.model";
 import {
   CreateUserInput,
   EditProfileInput,
   ForgotPasswordInput,
   getOwnedPostsInput,
+  getPublicUserInput,
   ResetPasswordInput,
   VerifyUserInput,
 } from "../schema/user.schema";
@@ -151,7 +152,7 @@ export async function resetPasswordHandler(
 // "/me"
 export async function getCurrentUserHandler(req: Request, res: Response) {
   // because deserializeUser middleware used in app.ts
-  log.info("in the getCurrentUser function")
+  log.info("in the getCurrentUser function");
   return res.send(res.locals.user);
 }
 
@@ -227,7 +228,7 @@ export async function editProfileHandler(
   }
 
   // sending back the user
-  const payload = omit(updatedUser.toJSON(), userPrivateFields);
+  const payload = omit(updatedUser.toJSON(), userCrucialFields);
   return res.status(StatusCodes.OK).send(payload);
 }
 
@@ -265,20 +266,23 @@ export async function editAvatarHandler(req: Request, res: Response) {
   //   }
   // });
 
-  log.info(req)
-  log.info("req.file is : ")
+  log.info(req);
+  log.info("req.file is : ");
   log.info(req.file?.filename);
   log.info(req.file?.path);
   log.info(req.file?.size);
 
   // req.file.
 
-  return res.status(StatusCodes.OK).send("Avatar has been updated successfully");
-
+  return res
+    .status(StatusCodes.OK)
+    .send("Avatar has been updated successfully");
 }
 
-export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInput>, res: Response) {
-
+export async function getOwnedPostsHandler(
+  req: Request<{}, {}, getOwnedPostsInput>,
+  res: Response
+) {
   const { id } = req.body;
 
   // check first if id of the person to change corresponds to the access token received
@@ -290,7 +294,9 @@ export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
 
   const user = await findUserById(id);
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).send("Could not get owned posts");
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send("Could not get owned posts");
   }
 
   const posts = await Promise.all(
@@ -302,8 +308,10 @@ export async function getOwnedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
   return res.status(StatusCodes.OK).send(omitted);
 }
 
-export async function getSavedPostsHandler(req: Request<{}, {}, getOwnedPostsInput>, res: Response) {
-
+export async function getSavedPostsHandler(
+  req: Request<{}, {}, getOwnedPostsInput>,
+  res: Response
+) {
   const { id } = req.body;
 
   // check first if id of the person to change corresponds to the access token received
@@ -315,7 +323,9 @@ export async function getSavedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
 
   const user = await findUserById(id);
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).send("Could not get saved posts");
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send("Could not get saved posts");
   }
 
   const posts = await Promise.all(
@@ -325,4 +335,22 @@ export async function getSavedPostsHandler(req: Request<{}, {}, getOwnedPostsInp
   const omitted = posts.map((post) => omit(post?.toJSON(), postPrivateFields));
 
   return res.status(StatusCodes.OK).send(omitted);
+}
+
+export async function getPublicUserHandler(
+  req: Request<getPublicUserInput>,
+  res: Response
+) {
+  // find the user by id
+  const id = req.params.id;
+  const user = await findUserById(id);
+
+  if (!user) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Could not verify user");
+  }
+
+  const payload = omit(user.toJSON(), userPrivateFields);
+  return res.status(StatusCodes.OK).send(payload);
 }

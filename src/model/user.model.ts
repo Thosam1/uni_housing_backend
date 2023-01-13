@@ -13,7 +13,7 @@ import argon2 from "argon2";
 import log from "../utils/logger";
 import { Post } from "./post.model";
 
-// stuff we do not want to send to the client
+// stuff we do not want to send to public
 export const userPrivateFields = [
   "password",
   "__v",
@@ -21,7 +21,17 @@ export const userPrivateFields = [
   "passwordResetCode",
   "verified",
   "savedPosts",
+  "email",
 ];
+
+// stuff we do not want to send, even to the user
+export const userCrucialFields = [
+  "password",
+  "__v",
+  "verificationCode",
+  "passwordResetCode",
+  "verified",
+]
 
 // presaved hook, to hash the password before putting it in the database
 @pre<User>("save", async function () {

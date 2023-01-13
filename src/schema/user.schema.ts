@@ -91,6 +91,12 @@ export const getSavedPostsSchema = object({
   }),
 });
 
+export const getPublicUserSchema = object({
+  params: object({
+    id: string(),
+  }),
+})
+
 
 
 
@@ -108,5 +114,7 @@ export type EditProfileInput = TypeOf<typeof editProfileSchema>["body"];
 export type getOwnedPostsInput = TypeOf<typeof getOwnedPostsSchema>["body"];
 
 export type getSavedPostsInput = TypeOf<typeof getSavedPostsSchema>["body"];
+
+export type getPublicUserInput = TypeOf<typeof getPublicUserSchema>["params"];
 
 

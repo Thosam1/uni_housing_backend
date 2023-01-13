@@ -7,6 +7,7 @@ import {
   forgotPasswordHandler,
   getCurrentUserHandler,
   getOwnedPostsHandler,
+  getPublicUserHandler,
   getSavedPostsHandler,
   resetPasswordHandler,
   verifyUserHandler,
@@ -18,6 +19,7 @@ import {
   editProfileSchema,
   forgotPasswordSchema,
   getOwnedPostsSchema,
+  getPublicUserSchema,
   getSavedPostsSchema,
   resetPasswordSchema,
   verifyUserSchema,
@@ -88,6 +90,12 @@ router.post(
   "/api/users/me/saved-posts",
   validateResource(getSavedPostsSchema),
   requireUser, getSavedPostsHandler
+);
+
+router.get(
+  "/api/users/get-profile/:id",
+  validateResource(getPublicUserSchema),
+  requireUser, getPublicUserHandler
 );
 
 // router.post(
