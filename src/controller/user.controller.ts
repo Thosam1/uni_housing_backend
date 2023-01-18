@@ -12,6 +12,7 @@ import {
   ResetPasswordInput,
   VerifyUserInput,
 } from "../schema/user.schema";
+import fs from "fs";
 import {
   createUser,
   findUserByEmail,
@@ -20,6 +21,7 @@ import {
 import log from "../utils/logger";
 import sendEmail from "../utils/mailer";
 import multer from "multer";
+import { sharp } from 'sharp';
 import { findPostById } from "../service/post.service";
 import { postPreview, postPrivateFields } from "../model/post.model";
 
@@ -153,7 +155,17 @@ export async function resetPasswordHandler(
 export async function getCurrentUserHandler(req: Request, res: Response) {
   // because deserializeUser middleware used in app.ts
   log.info("in the getCurrentUser function");
-  return res.send(res.locals.user);
+  const user = await findUserById(res.locals.user._id);
+
+  if (!user) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Could not get your profile");
+  }
+
+  return res
+    .status(StatusCodes.OK)
+    .send(omit(user.toJSON(), userCrucialFields));
 }
 
 // todo - get the user owned posts, and user saved posts / https://github.com/ed-roh/mern-social-media/blob/master/server/controllers/users.js
@@ -196,30 +208,6 @@ export async function editProfileHandler(
   user.status = newStatus;
   user.bio = newBio;
 
-  //   const storage = multer.diskStorage({
-  //     destination: function (req, file, cb) {
-  //         cb(null, 'uploads/avatars/')
-  //     },
-  //     filename: function (req, file, cb) {
-  //         cb(null, id)
-  //     }
-  // });
-
-  // let upload = multer({ storage: storage })
-
-  //   // avatar :
-  //   if(!!req.file) {
-  //     upload(req, res, function(err) {
-  //       if(err) {
-  //           //stuff when error while file uploading
-  //       } else {
-  //           //file uploaded
-  //       }
-  //     res.json({
-  //       url: `/uploads/avatars/${id}` // hopefully it overwrites
-  //     });
-  //   }
-
   await user.save();
 
   const updatedUser = await findUserById(id);
@@ -236,47 +224,37 @@ export async function editAvatarHandler(req: Request, res: Response) {
   log.info("\n\n\n\n ---------------------- \n\n\n\n");
   log.info("EDIT AVATAR HANDLER");
 
-  // // to store user avatars
-  // const storage = multer.diskStorage({
-  //   destination: function (request, file, callback) {
-  //     callback(null, "public");
-  //   },
-  //   filename: function (request, file, callback) {
-  //     var temp_file_arr = file.originalname.split(".");
+  if (!req.file) {
+    res.status(StatusCodes.BAD_REQUEST).send("No file uploaded !");
+  } else {
 
-  //     var temp_file_name = temp_file_arr[0];
+    const pathToFileInDatabase: string = req.file.destination + '/' + req.file.filename;
 
-  //     var temp_file_extension = temp_file_arr[1];
+    console.log(pathToFileInDatabase)
+    console.log(req.file)
 
-  //     callback(
-  //       null,
-  //       temp_file_name + "-" + Date.now() + "." + temp_file_extension
-  //     );
-  //   },
-  // });
+    const user = await findUserById(res.locals.user._id);
+    if (!user) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send("Could not edit user avatar");
+    }
 
-  // const upload = multer({ storage: storage }).single("image");
+    // first must delete the past avatar
+    const oldPath = user.avatar;
 
-  // upload(req, res, function (error) {
-  //   if (error) {
-  //     return res.status(StatusCodes.BAD_REQUEST).send("Error Uploading File");
-  //   } else {
-  //     log.info("uploaded yeeey");
-  //     return res.status(StatusCodes.OK).send("File is uploaded successfully");
-  //   }
-  // });
+    fs.unlink(oldPath, (err) => {
+      log.info(`error has happened deleting file at path : ${oldPath}`);
+      log.info(err);
+      // idea could add this to a list of all files that didn't got deleted to be retried every end of week todo
+    })
 
-  log.info(req);
-  log.info("req.file is : ");
-  log.info(req.file?.filename);
-  log.info(req.file?.path);
-  log.info(req.file?.size);
+    // then we set the new path for the avatar
+    user.avatar = pathToFileInDatabase;
+    await user.save();
 
-  // req.file.
-
-  return res
-    .status(StatusCodes.OK)
-    .send("Avatar has been updated successfully");
+    res.send("File uploaded successfully !");
+  }
 }
 
 export async function getOwnedPostsHandler(

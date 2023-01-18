@@ -70,32 +70,41 @@ router.post(
   editProfileHandler
 );
 
-// const upload = multer({ dest: "./public/data/uploads"})
-const storage = multer.memoryStorage();
-const upload = multer({ storage })
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/avatars");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage });
 router.post(
   "/api/users/me/edit-profile/avatar",
-  [requireUser,
-  upload.single('avatar')], // to add the image to the database !!! "avatar" must be also the name in the form 
+  requireUser,
+  upload.single('avatar'), // to add the image to the database !!! "avatar" must be also the name in the form
   editAvatarHandler
 );
 
 router.post(
   "/api/users/me/owned-posts",
   validateResource(getOwnedPostsSchema),
-  requireUser, getOwnedPostsHandler
+  requireUser,
+  getOwnedPostsHandler
 );
 
 router.post(
   "/api/users/me/saved-posts",
   validateResource(getSavedPostsSchema),
-  requireUser, getSavedPostsHandler
+  requireUser,
+  getSavedPostsHandler
 );
 
 router.get(
   "/api/users/get-profile/:id",
   validateResource(getPublicUserSchema),
-  requireUser, getPublicUserHandler
+  requireUser,
+  getPublicUserHandler
 );
 
 // router.post(

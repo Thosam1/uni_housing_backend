@@ -47,26 +47,22 @@ export async function createSessionHandler(
 
   log.info(`accessToken: ${accessToken} \n\n refreshToken: ${refreshToken}`);
 
-  // send the tokens
-  // res.cookie("jwt", refreshToken);
-  // res.json({ accessToken });
-
   res
     .cookie("refreshToken", refreshToken, {
       maxAge: 3.154e10, // 1 year
       httpOnly: true,
-      domain: process.env.COOKIE_DOMAIN || "localhost",
+      // domain: process.env.COOKIE_DOMAIN || "localhost", // commented so it works with mobile
       path: "/",
       sameSite: "strict",
-      secure: false, // todo in production we must put to true, only over a secure connection
+      secure: true, // todo in production we must put to true, only over a secure connection
     })
     .cookie("accessToken", accessToken, {
       maxAge: 3.154e10, // 1 year
       httpOnly: true,
-      domain: process.env.COOKIE_DOMAIN || "localhost",
+      // domain: process.env.COOKIE_DOMAIN || "localhost",
       path: "/",
       sameSite: "strict",
-      secure: false, // todo in production we must put to true, only over a secure connection
+      secure: true, // todo in production we must put to true, only over a secure connection
     });
 
   return res.status(StatusCodes.OK).send({
