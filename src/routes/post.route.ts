@@ -53,7 +53,7 @@ router.post(
 
 // delete a Post
 router.delete(
-  "/api/post/delete",
+  "/api/post/delete/:id",
   validateResource(deletePostSchema),
   requireUser,
   deletePostHandler

@@ -160,37 +160,35 @@ export async function editPostHandler(
 }
 
 export async function deletePostHandler(
-  req: Request<{}, {}, deletePostInput>,
+  req: Request<deletePostInput>,
   res: Response
 ) {
-  const body = req.body;
+
+  const user_id = res.locals.user._id;
+  const post_id = req.params.id;
+
+  const user = await findUserById(user_id);
+  if (!user) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("This user doesn't exist");
+  }
+
   try {
-    const user = await findUserById(body.user_id);
-    if (!user) {
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .send("This user doesn't exist");
-    }
-
-    // we check access token corresponds to the user
-    if (res.locals.user._id !== body.user_id) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .send("Hacking is punishable by law !");
-    }
-
     // currently, we allow duplicates, no need to really check if same description etc, ...
-    const post = await findPostById(body.post_id);
+    const post = await findPostById(post_id);
     if (!post) {
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send("This post doesn't exist");
     }
 
+    if(user_id !== post.user?.toString()) {
+      return res.status(StatusCodes.UNAVAILABLE_FOR_LEGAL_REASONS).send("Yo, hacking is punishable by law !");
+    }
+
     // we must remove from current user owned posts
-    user.ownedPosts = user.ownedPosts.filter((elt) => elt !== post) as [
-      Ref<Post, Types.ObjectId | undefined>
-    ];
+    user.ownedPosts = user.ownedPosts.filter((elt) => !post._id.equals(elt));
     await user.save();
 
     // [deprecated]
@@ -202,20 +200,19 @@ export async function deletePostHandler(
     const usersThatSavedThisPost = await Promise.all(
       post.savedBy.map((id) => findUserByRef(id))
     );
+
     usersThatSavedThisPost.map(async (user) => {
       if (user) {
         // check if user was found
-        user.savedPosts = user.savedPosts.filter(
-          (postID) => postID !== post._id
-        ) as [Ref<Post, Types.ObjectId | undefined>];
+        user.savedPosts = user.savedPosts.filter((postID) => !post._id.equals(postID));
         await user.save();
       }
     });
 
     // we must delete the post from the database
-    await deletePostById(body.post_id);
+    await deletePostById(post_id);
 
-    return res.send("Post successfully updated !");
+    return res.status(StatusCodes.OK).send("Post successfully updated !");
   } catch (e: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
   }
@@ -311,7 +308,8 @@ export async function getPostHandler(
   newPost["owner_lastName"] = user.lastName;
   newPost["owner_avatar"] = user.avatar;
 
-  const found = post?.savedBy.filter((elt) => user._id.equals(elt)).length === 1;
+  const found =
+    post?.savedBy.filter((elt) => user._id.equals(elt)).length === 1;
   newPost["saved"] = found;
 
   return res.status(StatusCodes.OK).send(newPost);

@@ -69,17 +69,14 @@ export const editImagesSchema = object({
   params: object({
     id: string({
       required_error: "Post id is required",
-    })
-  })
-})
+    }),
+  }),
+});
 
 export const deletePostSchema = object({
-  body: object({
-    post_id: string({
+  params: object({
+    id: string({
       required_error: "Post id is required",
-    }),
-    user_id: string({
-      required_error: "Owner id is required",
     }),
   }),
 });
@@ -104,7 +101,7 @@ export type editImagesInput = TypeOf<typeof editImagesSchema>["params"];
 
 export type editPostInput = TypeOf<typeof editPostSchema>["body"];
 
-export type deletePostInput = TypeOf<typeof deletePostSchema>["body"];
+export type deletePostInput = TypeOf<typeof deletePostSchema>["params"];
 
 export type getPostInput = TypeOf<typeof getPostSchema>["params"];
 
