@@ -46,9 +46,9 @@ export class Post {
   images: string[];
 
   @prop({ required: false, default: [] })
-  savedBy: [Ref<User>];
+  savedBy: Ref<User>[];
 
-  @prop({ required: true })
+  @prop({ required: false, default: "" })
   shareLink: string;
 }
 

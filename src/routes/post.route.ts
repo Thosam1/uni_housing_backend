@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import {
   createSessionHandler,
   refreshAccessTokenHandler,
@@ -6,6 +7,7 @@ import {
 import {
   createPostHandler,
   deletePostHandler,
+  editImagesHandler,
   editPostHandler,
   getAllPostsHandler,
   getHomePostsHandler,
@@ -33,6 +35,14 @@ router.post(
   createPostHandler
 );
 
+
+router.post(
+  "/api/post/edit-images/:id",
+  requireUser,
+  // upload.single('image'),
+  editImagesHandler
+);
+
 // edit a Post
 router.post(
   "/api/post/edit",
@@ -50,8 +60,8 @@ router.delete(
 );
 
 // save or unsave a Post
-router.post(
-  "/api/post/save-unsave",
+router.get(
+  "/api/post/save-unsave/:id",
   validateResource(saveUnsavePostSchema),
   requireUser,
   saveUnsavePostHandler

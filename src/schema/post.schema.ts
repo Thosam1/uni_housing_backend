@@ -65,6 +65,14 @@ export const editPostSchema = object({
   }),
 });
 
+export const editImagesSchema = object({
+  params: object({
+    id: string({
+      required_error: "Post id is required",
+    })
+  })
+})
+
 export const deletePostSchema = object({
   body: object({
     post_id: string({
@@ -77,13 +85,8 @@ export const deletePostSchema = object({
 });
 
 export const saveUnsavePostSchema = object({
-  body: object({
-    user_id: string({
-      required_error: "User id is required",
-    }),
-    post_id: string({
-      required_error: "Post id is required",
-    }),
+  params: object({
+    id: string(),
   }),
 });
 
@@ -97,10 +100,12 @@ export const getPostSchema = object({
 
 export type createPostInput = TypeOf<typeof createPostSchema>["body"];
 
+export type editImagesInput = TypeOf<typeof editImagesSchema>["params"];
+
 export type editPostInput = TypeOf<typeof editPostSchema>["body"];
 
 export type deletePostInput = TypeOf<typeof deletePostSchema>["body"];
 
 export type getPostInput = TypeOf<typeof getPostSchema>["params"];
 
-export type saveUnsavePostInput = TypeOf<typeof saveUnsavePostSchema>["body"];
+export type saveUnsavePostInput = TypeOf<typeof saveUnsavePostSchema>["params"];

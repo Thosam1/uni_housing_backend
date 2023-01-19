@@ -83,10 +83,10 @@ export class User {
   bio: string;
 
   @prop({ required: false, default: [] })
-  ownedPosts: [Ref<Post>];
+  ownedPosts: Ref<Post>[];
 
   @prop({ required: false, default: [] })
-  savedPosts: [Ref<Post>];
+  savedPosts: Ref<Post>[];
 
   @prop({ required: true })
   password: string;

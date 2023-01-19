@@ -253,7 +253,7 @@ export async function editAvatarHandler(req: Request, res: Response) {
     user.avatar = pathToFileInDatabase;
     await user.save();
 
-    res.send("File uploaded successfully !");
+    return res.send("File uploaded successfully !");
   }
 }
 
