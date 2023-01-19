@@ -311,7 +311,7 @@ export async function getPostHandler(
   newPost["owner_lastName"] = user.lastName;
   newPost["owner_avatar"] = user.avatar;
 
-  const found = post?.savedBy.filter((elt) => elt === user._id).length === 1;
+  const found = post?.savedBy.filter((elt) => user._id.equals(elt)).length === 1;
   newPost["saved"] = found;
 
   return res.status(StatusCodes.OK).send(newPost);
