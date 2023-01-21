@@ -35,17 +35,25 @@ router.post(
   createPostHandler
 );
 
-
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/images");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage });
 router.post(
   "/api/post/edit-images/:id",
   requireUser,
-  // upload.single('image'),
+  upload.single('image'),
   editImagesHandler
 );
 
 // edit a Post
 router.post(
-  "/api/post/edit",
+  "/api/post/edit/:id",
   validateResource(editPostSchema),
   requireUser,
   editPostHandler

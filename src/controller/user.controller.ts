@@ -330,5 +330,6 @@ export async function getPublicUserHandler(
   }
 
   const payload = omit(user.toJSON(), userPrivateFields);
+  console.log(payload)
   return res.status(StatusCodes.OK).send(payload);
 }

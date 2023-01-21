@@ -5,8 +5,9 @@ import { omit } from "lodash";
 import { Types } from "mongoose";
 import multer from "multer";
 import { MAX_IMAGES_POST } from "../constants";
-import { Post, postPrivateFields } from "../model/post.model";
+import { Post, postPreview, postPrivateFields } from "../model/post.model";
 import { userPrivateFields, User } from "../model/user.model";
+import fs from "fs";
 
 import {
   createPostInput,
@@ -75,19 +76,11 @@ export async function createPostHandler(
   }
 }
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/images");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage });
 export async function editImagesHandler(
   req: Request<editImagesInput>,
   res: Response
 ) {
+
   if (!req.file) {
     res.status(StatusCodes.BAD_REQUEST).send("No file uploaded !");
   } else {
@@ -98,50 +91,56 @@ export async function editImagesHandler(
         .send("This post doesn't exist");
     }
 
+    const pathToFileInDatabase: string = req.file.destination + '/' + req.file.filename;
+    console.log(pathToFileInDatabase)
+    console.log(req.file)
+
     if (post.images.length >= MAX_IMAGES_POST) {
+
+      // we must delete the image added to the database
+
+      fs.unlink(pathToFileInDatabase, (err) => {
+        log.info(`error has happened deleting file at path (becuase max nb of images exceeded) : ${pathToFileInDatabase}`);
+        log.info(err);
+        // // // idea could add this to a list of all files that didn't got deleted to be retried every end of week todo
+      });
+
       return res
         .status(StatusCodes.BAD_REQUEST)
         .send(`Limit of ${MAX_IMAGES_POST} images reached !`);
     }
 
-    // const pathToFileInDatabase: string = req.file.destination + '/' + req.file.filename;
-    upload.single("image");
-
-    // // then we set the new path for the avatar
-    // user.avatar = pathToFileInDatabase;
-    // await user.save();
+    post.images.push(pathToFileInDatabase);
+    await post.save();
 
     res.send("File uploaded successfully !");
   }
 }
 
 export async function editPostHandler(
-  req: Request<{}, {}, editPostInput>,
+  req: Request<editPostInput["params"], {}, editPostInput["body"]>,
   res: Response
 ) {
+  const post_id = req.params.id;
   const body = req.body;
+  const user_id = res.locals.user._id;
   try {
-    const user = await findUserById(body.user_id);
+    const user = await findUserById(user_id);
     if (!user) {
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send("This user doesn't exist");
     }
 
-    // we check access token corresponds to the user
-    if (res.locals.user._id !== body.user_id) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .send("Hacking is punishable by law !");
-    }
-
     // currently, we allow duplicates, no need to really check if same description etc, ...
-    const post = await findPostById(body.post_id);
+    const post = await findPostById(post_id);
     if (!post) {
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send("This post doesn't exist");
     }
+
+    // todo - form validation ? or maybe in the schema
 
     post.title = body.title;
     post.city = body.city;
@@ -285,7 +284,6 @@ export async function getPostHandler(
   res: Response
 ) {
   const params = req.params;
-  console.log("Get post handler");
 
   const post = await findPostById(params.id);
   if (!post) {
@@ -317,8 +315,10 @@ export async function getPostHandler(
 
 export async function getHomePostsHandler(req: Request, res: Response) {
   const allPosts = await getAllPosts();
-  if (!allPosts) {
-    return res.status(StatusCodes.OK).send("All posts sent to you");
+  const omitted = allPosts.map((post) => omit(post?.toJSON(), postPreview));
+
+  if (allPosts) {
+    return res.status(StatusCodes.OK).send(omitted);
   } else {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
