@@ -80,7 +80,6 @@ export async function editImagesHandler(
   req: Request<editImagesInput>,
   res: Response
 ) {
-
   if (!req.file) {
     res.status(StatusCodes.BAD_REQUEST).send("No file uploaded !");
   } else {
@@ -91,16 +90,18 @@ export async function editImagesHandler(
         .send("This post doesn't exist");
     }
 
-    const pathToFileInDatabase: string = req.file.destination + '/' + req.file.filename;
-    console.log(pathToFileInDatabase)
-    console.log(req.file)
+    const pathToFileInDatabase: string =
+      req.file.destination + "/" + req.file.filename;
+    console.log(pathToFileInDatabase);
+    console.log(req.file);
 
     if (post.images.length >= MAX_IMAGES_POST) {
-
       // we must delete the image added to the database
 
       fs.unlink(pathToFileInDatabase, (err) => {
-        log.info(`error has happened deleting file at path (becuase max nb of images exceeded) : ${pathToFileInDatabase}`);
+        log.info(
+          `error has happened deleting file at path (becuase max nb of images exceeded) : ${pathToFileInDatabase}`
+        );
         log.info(err);
         // // // idea could add this to a list of all files that didn't got deleted to be retried every end of week todo
       });
@@ -162,7 +163,6 @@ export async function deletePostHandler(
   req: Request<deletePostInput>,
   res: Response
 ) {
-
   const user_id = res.locals.user._id;
   const post_id = req.params.id;
 
@@ -182,8 +182,10 @@ export async function deletePostHandler(
         .send("This post doesn't exist");
     }
 
-    if(user_id !== post.user?.toString()) {
-      return res.status(StatusCodes.UNAVAILABLE_FOR_LEGAL_REASONS).send("Yo, hacking is punishable by law !");
+    if (user_id !== post.user?.toString()) {
+      return res
+        .status(StatusCodes.UNAVAILABLE_FOR_LEGAL_REASONS)
+        .send("Yo, hacking is punishable by law !");
     }
 
     // we must remove from current user owned posts
@@ -203,9 +205,20 @@ export async function deletePostHandler(
     usersThatSavedThisPost.map(async (user) => {
       if (user) {
         // check if user was found
-        user.savedPosts = user.savedPosts.filter((postID) => !post._id.equals(postID));
+        user.savedPosts = user.savedPosts.filter(
+          (postID) => !post._id.equals(postID)
+        );
         await user.save();
       }
+    });
+
+    // after that we also need to delete the images
+    post.images.map((imagePath) => {
+      fs.unlink(imagePath, (err) => {
+        log.info(`error has happened deleting file at path : ${imagePath}`);
+        log.info(err);
+        // idea could add this to a list of all files that didn't got deleted to be retried every end of week todo
+      });
     });
 
     // we must delete the post from the database
