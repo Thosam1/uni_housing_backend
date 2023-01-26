@@ -33,7 +33,7 @@ app.use(express.json());
 // to make the API public
 app.use(
   cors({
-    origin: ["http://localhost:19006", "http://172.20.10.2:19000", "exp://172.20.10.2:19000"], // CORS_ORIGIN, // ["http://localhost:19006", "http://localhost:19000", "http://172.20.10.2:19000" ], // with '*', the register request from client works
+    origin: ["http://localhost:19006", "unihousingapp:://"], // CORS_ORIGIN, 
     credentials: true,
     // origin: '*', // CORS_ORIGIN, // '*' // 'http://localhost:19006/' //
     // credentials: true,
