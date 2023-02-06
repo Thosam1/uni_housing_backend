@@ -1,10 +1,6 @@
 import express from "express";
 import multer from "multer";
 import {
-  createSessionHandler,
-  refreshAccessTokenHandler,
-} from "../controller/auth.controller";
-import {
   createPostHandler,
   deletePostHandler,
   editImagesHandler,
@@ -16,7 +12,6 @@ import {
 } from "../controller/post.controller";
 import requireUser from "../middleware/requireUser";
 import validateResource from "../middleware/validateResource";
-import { createSessionSchema } from "../schema/auth.schema";
 import {
   createPostSchema,
   deletePostSchema,

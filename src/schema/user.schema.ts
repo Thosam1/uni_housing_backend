@@ -4,9 +4,9 @@ import { object, string, TypeOf } from "zod"; // for validation
 const MIN_NAME_LENGTH = 2;
 const MIN_PASSWORD_LENGTH = 6;
 const MIN_STATUS_LENGTH = 5;
-const MAX_STATUS_LENGTH = 20;
+const MAX_STATUS_LENGTH = 50;
 const MIN_BIO_LENGTH = 10;
-const MAX_BIO_LENGTH = 200;
+const MAX_BIO_LENGTH = 1000;
 
 export const createUserSchema = object({
   body: object({
@@ -74,8 +74,8 @@ export const editProfileSchema = object({
     newLastName: string({
       required_error: "Last name is required",
     }).min(MIN_NAME_LENGTH, `Last name is too shord - should be min ${MIN_NAME_LENGTH} chars`),
-    newStatus: string(),
-    newBio: string(),
+    newStatus: string().max(MAX_STATUS_LENGTH, `Status is too long - should be max ${MAX_STATUS_LENGTH} chars`),
+    newBio: string().max(MAX_BIO_LENGTH, `Bio is too long - should be max ${MAX_BIO_LENGTH} chars`),
   }),
 });
 

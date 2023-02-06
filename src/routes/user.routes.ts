@@ -108,18 +108,6 @@ router.get(
 );
 
 // router.post(
-//   "/api/users/me/change-avatar",
-//   validateResource(changeAvatarSchema),
-//   changeAvatarHandler
-// );
-
-// router.post(
-//   "/api/users/me/change-password",
-//   validateResource(changePasswordSchema), requireUser,
-//   changePasswordHandler
-// );
-
-// router.post(
 //   "/api/users/me/close-account",
 //   validateResource(closeAccountSchema),
 //   closeAccountHandler

@@ -1,6 +1,9 @@
 /* server side validation */
 import { object, string, TypeOf } from "zod"; // for validation
 
+const MAX_TITLE_LENGTH = 30;
+const MAX_DESCRIPTiON_LENGTH = 10000;
+
 export const createPostSchema = object({
   body: object({
     user: string({
@@ -8,7 +11,10 @@ export const createPostSchema = object({
     }),
     title: string({
       required_error: "Title is required",
-    }),
+    }).max(
+      MAX_TITLE_LENGTH,
+      `Title is too long - should be max ${MAX_TITLE_LENGTH} chars`
+    ),
 
     city: string({
       required_error: "City is required",
@@ -26,7 +32,10 @@ export const createPostSchema = object({
 
     description: string({
       required_error: "Description confirmation is required",
-    }),
+    }).max(
+      MAX_DESCRIPTiON_LENGTH,
+      `Description is too long - should be max ${MAX_DESCRIPTiON_LENGTH} chars`
+    ),
     price: string({
       required_error: "Price is required",
     }),
@@ -45,7 +54,10 @@ export const editPostSchema = object({
     }),
     title: string({
       required_error: "Title is required",
-    }),
+    }).max(
+      MAX_TITLE_LENGTH,
+      `Title is too long - should be max ${MAX_TITLE_LENGTH} chars`
+    ),
     city: string({
       required_error: "City is required",
     }),
@@ -60,7 +72,10 @@ export const editPostSchema = object({
     }),
     description: string({
       required_error: "Description confirmation is required",
-    }),
+    }).max(
+      MAX_DESCRIPTiON_LENGTH,
+      `Description is too long - should be max ${MAX_DESCRIPTiON_LENGTH} chars`
+    ),
     price: string({
       required_error: "Price is required",
     }),
