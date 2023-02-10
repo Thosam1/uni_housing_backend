@@ -1,4 +1,4 @@
-# Authentication REST API with Node.js, TypeScript, Typegoose & Zod
+# REST API with Node.js, TypeScript, Typegoose & Zod
 
 ## Features
 1. Register a user
