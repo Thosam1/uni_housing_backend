@@ -9,6 +9,7 @@
 6. Login
 7. Access token
 8. Refresh tokens
+9. [...]
 
 ## What technology are we using?
 - [TypeScript](https://www.typescriptlang.org/) - Static tye checking 
