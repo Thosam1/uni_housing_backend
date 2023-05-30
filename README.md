@@ -1,4 +1,8 @@
-# REST API with Node.js, TypeScript, Typegoose & Zod
+# UniHousing backend
+
+REST API with Node.js, TypeScript, Typegoose & Zod
+
+Coded this backend for a personal project for university housing. This backend works in paar with a react native front-end.
 
 ## Features
 1. Register a user
